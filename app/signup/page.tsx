@@ -142,7 +142,7 @@ export default function Auth() {
 							className="w-full flex items-center justify-center gap-2 py-2 border rounded-md text-gray-700 hover:bg-gray-100"
 						>
 							<Image
-								src="/assets/Icons/google.svg"
+								src="/assets/Icons/google-icon.svg"
 								alt="Google Icon"
 								width={20}
 								height={20}
@@ -216,7 +216,7 @@ export default function Auth() {
 							className="w-full flex items-center justify-center gap-2 py-2 border rounded-md text-gray-700 hover:bg-gray-100"
 						>
 							<Image
-								src="/assets/Icons/google.svg"
+								src="/assets/Icons/google-icon.svg"
 								alt="Google Icon"
 								width={20}
 								height={20}
