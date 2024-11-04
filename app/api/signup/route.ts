@@ -5,13 +5,15 @@ import User from "@/models/User";
 export const POST = async (req: Request) => {
 	try {
 		await connectToDB();
-		const { name, email, password } = await req.json();
-		if (!name || !email || !password) {
+		const { tempUser } = await req.json();
+
+		if (!tempUser) {
 			return NextResponse.json(
 				{ message: "Invalid name, email, or password" },
 				{ status: 400 }
 			);
 		}
+		const email = tempUser.email;
 		let user = await User.findOne({ email });
 		if (user) {
 			return NextResponse.json(
@@ -19,7 +21,8 @@ export const POST = async (req: Request) => {
 				{ status: 400 }
 			);
 		}
-		user = await User.create({ name, email, password });
+
+		user = await User.create(tempUser);
 		return NextResponse.json(
 			{ message: "Successfully signed up", id: user._id },
 			{ status: 201 }

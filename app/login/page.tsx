@@ -76,7 +76,7 @@ export default function Auth() {
 								? "bg-white text-gray-900 border-r border-gray-300"
 								: "text-gray-500"
 						}`}
-						onClick={() => setCurrentTab("signup")}
+						onClick={() => route.push("/signup")}
 					>
 						Sign up
 					</button>

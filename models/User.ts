@@ -1,18 +1,81 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-	name: {
+	fullname: {
 		type: String,
-		required: true,
+		required: false,
+	},
+	fathername: {
+		type: String,
+		required: false,
+	},
+	mothername: {
+		type: String,
+		required: false,
 	},
 	email: {
 		type: String,
-		required: true,
-		unique: true,
+		required: false,
+	},
+	phone: {
+		type: String,
+		required: false,
+	},
+	house_no: {
+		type: String,
+		required: false,
+	},
+	village: {
+		type: String,
+		required: false,
+	},
+	po: {
+		type: String,
+		required: false,
+	},
+	ps: {
+		type: String,
+		required: false,
+	},
+	district: {
+		type: String,
+		required: false,
 	},
 	password: {
 		type: String,
-		required: true,
+		required: false,
+	},
+	nid_number: {
+		type: String,
+		required: false,
+	},
+	bank_account_number: {
+		type: String,
+		required: false,
+	},
+	bank_account_holder_name: {
+		type: String,
+		required: false,
+	},
+	bank_name: {
+		type: String,
+		required: false,
+	},
+	bank_district: {
+		type: String,
+		required: false,
+	},
+	bank_branch: {
+		type: String,
+		required: false,
+	},
+	profile_picture: {
+		type: String,
+		required: false,
+	},
+	signature: {
+		type: String,
+		required: false,
 	},
 });
 
