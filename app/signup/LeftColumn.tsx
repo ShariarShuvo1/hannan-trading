@@ -38,7 +38,7 @@ function ColorlibStepIcon(props: StepIconProps) {
 	const icons: { [index: string]: React.ReactElement<unknown> } = {
 		1: (
 			<Image
-				src="/assets/icons/progress-steps-user-01.svg"
+				src="/assets/Icons/progress-steps-user-01.svg"
 				width={24}
 				height={24}
 				alt="user"
@@ -46,7 +46,7 @@ function ColorlibStepIcon(props: StepIconProps) {
 		),
 		2: (
 			<Image
-				src="/assets/icons/progress-steps-passcode.svg"
+				src="/assets/Icons/progress-steps-passcode.svg"
 				width={24}
 				height={24}
 				alt="user"
@@ -54,7 +54,7 @@ function ColorlibStepIcon(props: StepIconProps) {
 		),
 		3: (
 			<Image
-				src="/assets/icons/progress-steps-users-plus.svg"
+				src="/assets/Icons/progress-steps-users-plus.svg"
 				width={24}
 				height={24}
 				alt="user"
@@ -62,7 +62,7 @@ function ColorlibStepIcon(props: StepIconProps) {
 		),
 		4: (
 			<Image
-				src="/assets/icons/progress-steps-stars-02.svg"
+				src="/assets/Icons/progress-steps-stars-02.svg"
 				width={24}
 				height={24}
 				alt="user"
