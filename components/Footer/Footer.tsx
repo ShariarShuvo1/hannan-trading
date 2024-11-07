@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export default function Footer() {
 	return (
-		<footer className="bg-gray-900 text-gray-400 py-10">
-			<div className="flex flex-col items-center space-y-4">
+		<footer className="bg-[#0C0E12] text-[#94979C] py-10">
+			<div className="flex flex-col items-center space-y-4 px-[112px]">
 				<Image
-					src="/assets/logo.svg"
+					src="/assets/logo-white.svg"
 					alt="Hannan Trading Logo"
 					width={150}
 					height={43}

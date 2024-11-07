@@ -7,7 +7,7 @@ export default function Navbar() {
 	const { isSignedIn } = useUser();
 	const { signOut } = useClerk();
 	return (
-		<header className="flex items-center justify-between py-4 px-16 font-semibold bg-white">
+		<header className="flex items-center justify-between py-4 px-[112px] font-semibold bg-white">
 			<div className="flex items-center space-x-8">
 				<Image
 					src="/assets/logo.svg"
@@ -52,7 +52,7 @@ export default function Navbar() {
 					</Link>
 					<Link
 						href="/signup"
-						className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700"
+						className="px-4 py-2 text-white bg-[#7F56D9] rounded-lg hover:bg-[#6846b1]"
 					>
 						Sign up
 					</Link>

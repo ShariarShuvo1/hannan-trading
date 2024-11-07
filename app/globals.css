@@ -1,4 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-  
+
+@keyframes marquee {
+	0% {
+		transform: translateX(100%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+
+.marquee {
+	animation: marquee 15s linear infinite;
+}
+
+@font-face {
+	font-family: "insight-melody";
+	src: url("/fonts/insight-melody.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}

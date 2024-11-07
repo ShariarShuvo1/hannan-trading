@@ -42,6 +42,13 @@ const config = {
 			);
 		},
 	],
+	theme: {
+		extend: {
+			fontFamily: {
+				insightMelody: ["insight-melody", "sans-serif"],
+			},
+		},
+	},
 } satisfies Config;
 
 export default config;
