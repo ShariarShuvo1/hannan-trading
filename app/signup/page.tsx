@@ -25,7 +25,7 @@ export default function Signup() {
 	return (
 		<div className="flex w-screen h-screen">
 			<LeftColumn currentStep={currentStep} />
-			<div className="w-full">
+			<div className="w-full p-2 md:p-0 h-full">
 				{currentStep === 0 && (
 					<StepOne
 						user={user}
@@ -51,7 +51,6 @@ export default function Signup() {
 					/>
 				)}
 				{currentStep === 3 && <StepFour user={user} />}
-				{/* <StepFour user={user} /> */}
 			</div>
 		</div>
 	);

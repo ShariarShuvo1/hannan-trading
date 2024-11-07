@@ -44,7 +44,7 @@ export default function Rating() {
 	}, [active]);
 
 	return (
-		<div className="flex select-none justify-between w-full py-[96px] gap-[64px]">
+		<div className="flex flex-col lg:flex-row select-none justify-between w-full py-[96px] gap-[64px]">
 			<div className="flex flex-col gap-[48px] justify-center">
 				<div className="flex gap-[4px]">
 					{[...Array(currentRating.star)].map((_, index) => (
@@ -60,7 +60,7 @@ export default function Rating() {
 				<div className="text-[48px] font-[500]">
 					{currentRating.title}
 				</div>
-				<div className="flex justify-between items-center">
+				<div className="flex flex-col gap-6 lg:gap-0 lg:flex-row justify-between lg:items-center">
 					<div className="flex gap-[16px]">
 						<Image
 							src={currentRating.picture}
@@ -78,7 +78,7 @@ export default function Rating() {
 							</div>
 						</div>
 					</div>
-					<div className="flex justify-between gap-[32px]">
+					<div className="flex lg:justify-between gap-[32px]">
 						<div
 							onClick={() => {
 								if (active > 0) {
@@ -118,7 +118,7 @@ export default function Rating() {
 					alt="Get Started"
 					width={560}
 					height={640}
-					className="max-w-[560px] max-h-[640px] rounded-tr-[64px] rounded-bl-[64px] object-cover"
+					className="md:max-w-[560px] md:max-h-[640px] object-cover"
 				/>
 			</div>
 		</div>

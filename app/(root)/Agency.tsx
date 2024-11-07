@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function GetStarted() {
 	return (
-		<div className="flex justify-between items-center w-full py-[96px] gap-[64px]">
+		<div className="flex flex-col md:flex-row justify-between items-center w-full py-[96px] gap-[64px]">
 			<div className="flex flex-col justify-center">
 				<div className="font-semibold text-[#6941C6] leading-[24px]">
 					Our Agency
@@ -39,7 +39,7 @@ export default function GetStarted() {
 						turpis. Sapien, dictum molestie sem tempor. Diam elit,
 						orci, tincidunt aenean.
 					</div>
-					<div className="flex gap-[12px]">
+					<div className="flex flex-col md:flex-row gap-[12px]">
 						<Link
 							href="/"
 							className="bg-white hover:bg-gray-100 px-[18px] py-[12px] rounded-[8px] teaxt-[16px] font-semibold text-[#414651] border border-[#D5D7DA]"
@@ -62,7 +62,7 @@ export default function GetStarted() {
 					alt="Get Started"
 					width={560}
 					height={640}
-					className="max-w-[560px] max-h-[640px] object-cover"
+					className="md:max-w-[560px] md:max-h-[640px] object-cover"
 				/>
 			</div>
 		</div>

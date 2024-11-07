@@ -11,11 +11,11 @@ import Contact from "./(root)/Contact";
 export default function Home() {
 	return (
 		<div className="w-full">
-			<div className="overflow-auto hidden lg:block max-w-[99vw]">
+			<div className="overflow-auto hidden lg:block ">
 				<Marquee text="Hannan Trading" />
 			</div>
 			<Navbar />
-			<div className="px-[112px]">
+			<div className="md:px-[112px] px-2">
 				<GetStarted />
 				<Master />
 				<hr />

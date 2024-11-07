@@ -35,7 +35,7 @@ export default function RootLayout({
 				<body
 					className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 				>
-					<HeroHighlight className="h-full">
+					<HeroHighlight className="h-full w-full">
 						<ToasterProvider />
 						{children}
 					</HeroHighlight>

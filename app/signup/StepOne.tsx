@@ -62,7 +62,7 @@ export default function StepOne({
 	};
 
 	return (
-		<div className="w-full max-w-md mx-auto flex flex-col justify-center items-center h-full gap-y-[32px]">
+		<div className="w-full max-w-md mx-auto gap-y-[2rem] pt-16">
 			<div className="flex flex-col items-center gap-y-[32px]">
 				<div className="bg-white border p-[14px] rounded-[12px] ">
 					<Image

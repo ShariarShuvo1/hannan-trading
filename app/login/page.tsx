@@ -104,12 +104,12 @@ export default function Auth() {
 								/>
 								Remember for 30 days
 							</label>
-							<a
-								href="#"
+							<Link
+								href="/forgot-password"
 								className="text-[#6941C6] font-semibold"
 							>
 								Forgot password
-							</a>
+							</Link>
 						</div>
 						<button
 							type="submit"

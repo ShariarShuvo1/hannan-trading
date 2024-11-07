@@ -6,7 +6,7 @@ export default function Contact() {
 	return (
 		<div className="flex flex-col gap-[64px] py-[96px] w-full">
 			<hr />
-			<div className="flex justify-between">
+			<div className="flex flex-col md:flex-row gap-12 md:gap-0 justify-between">
 				<div className="flex flex-col gap-[12px]">
 					<div className="flex flex-col gap-[12px]">
 						<div className="font-semibold text-[#6941C6] leading-[24px]">

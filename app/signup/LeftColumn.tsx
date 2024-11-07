@@ -102,7 +102,7 @@ export default function LeftColumn({ currentStep }: { currentStep: number }) {
 		},
 	];
 	return (
-		<div className="flex p-[2rem] flex-col justify-between h-full bg-[#E9EAEB] max-w-[27.5rem] w-full">
+		<div className="hidden md:flex p-[2rem] flex-col justify-between h-full bg-[#E9EAEB] max-w-[27.5rem] w-full">
 			<div className=" flex flex-col space-y-[5rem] justify-between">
 				<Image
 					src="assets/logo.svg"

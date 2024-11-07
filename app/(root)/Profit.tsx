@@ -19,9 +19,9 @@ export default function Profit() {
 					<TextGenerateEffect words="We design physical experiences that create more happy in the world." />
 				</div>
 			</div>
-			<div className="flex justify-between items-center w-full gap-[64px]">
-				<div className="flex flex-col gap-[64px]">
-					<div className="flex justify-center w-full gap-[32px]">
+			<div className="flex flex-col md:flex-row justify-between items-center w-full gap-[64px]">
+				<div className="flex flex-col gap-[64px] w-full">
+					<div className="flex flex-col md:flex-row justify-center w-full gap-[32px]">
 						<div className="flex flex-col items-center">
 							<div className="font-semibold text-[60px] text-[#7F56D9]">
 								<CountUp end={400} />+
@@ -47,7 +47,7 @@ export default function Profit() {
 							</div>
 						</div>
 					</div>
-					<div className="flex justify-center w-full gap-[32px]">
+					<div className="flex flex-col md:flex-row justify-center w-full gap-[32px]">
 						<div className="flex flex-col items-center">
 							<div className="font-semibold text-[60px] text-[#7F56D9]">
 								<CountUp end={50} />+
@@ -81,7 +81,7 @@ export default function Profit() {
 						alt="Get Started"
 						width={560}
 						height={640}
-						className="max-w-[560px] max-h-[640px] object-cover"
+						className="md:max-w-[560px] md:max-h-[640px] object-cover"
 					/>
 				</div>
 			</div>
