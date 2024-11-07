@@ -12,11 +12,13 @@ import {
 	Search,
 	User,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
 	const success = () => {
 		toast.success("Thank you for participating in this event!");
 	};
+	const route = useRouter();
 	return (
 		<div className="flex">
 			<aside className="w-64 h-screen p-4 bg-white border-r flex flex-col ">
@@ -25,7 +27,8 @@ export default function Dashboard() {
 					alt="Logo"
 					width={150}
 					height={43}
-					className=""
+					className="cursor-pointer"
+					onClick={() => route.push("/")}
 				/>
 				<div className="relative mt-4">
 					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />

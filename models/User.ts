@@ -77,6 +77,10 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: false,
 	},
+	clerkId: {
+		type: String,
+		required: false,
+	},
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

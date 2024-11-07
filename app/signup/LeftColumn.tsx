@@ -4,6 +4,7 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import { StepIconProps } from "@mui/material/StepIcon";
 import { styled } from "@mui/material/styles";
+import { useRouter } from "next/navigation";
 
 const ColorlibStepIconRoot = styled("div")<{
 	ownerState: { completed?: boolean; active?: boolean };
@@ -81,6 +82,7 @@ function ColorlibStepIcon(props: StepIconProps) {
 }
 
 export default function LeftColumn({ currentStep }: { currentStep: number }) {
+	const router = useRouter();
 	const steps = [
 		{
 			title: "Your details",
@@ -107,6 +109,8 @@ export default function LeftColumn({ currentStep }: { currentStep: number }) {
 					width={150}
 					height={43}
 					alt="logo"
+					className="cursor-pointer"
+					onClick={() => router.push("/")}
 				/>
 				<Stepper activeStep={currentStep} orientation="vertical">
 					{steps.map((item, index) => (
@@ -131,9 +135,17 @@ export default function LeftColumn({ currentStep }: { currentStep: number }) {
 					))}
 				</Stepper>
 			</div>
-			<div className="flex justify-between w-full">
+			<div className="flex justify-between w-full text-[#535862]">
 				<div>© Hannan Trading</div>
-				<div>help@hannantrading.org</div>
+				<div className="flex gap-1">
+					<Image
+						src="/assets/Icons/mail-01.svg"
+						width={16}
+						height={16}
+						alt="mail"
+					/>
+					<div>help@hannantrading.org</div>
+				</div>
 			</div>
 		</div>
 	);

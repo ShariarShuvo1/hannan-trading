@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Upload } from "lucide-react";
-
+import Image from "next/image";
 import User from "@/interfaces/User";
 import toast from "react-hot-toast";
 
@@ -34,15 +33,24 @@ export default function StepTwo({
 		setCurrentStep(currentStep + 1);
 	}
 	return (
-		<div className="bg-white w-full max-w-md mx-auto p-6 flex flex-col justify-center">
-			<div className="flex flex-col items-center mb-6">
-				<div className="bg-gray-200 p-4 rounded-full">
-					<Upload className="w-8 h-8 text-gray-500" />
+		<div className="w-full max-w-md mx-auto flex flex-col justify-center gap-y-[2rem] pt-16">
+			<div className="flex flex-col items-center gap-y-[2rem]">
+				<div className="bg-white border p-[14px] rounded-[12px] ">
+					<Image
+						src="/assets/Icons/key-01.svg"
+						width={28}
+						height={28}
+						alt="mail"
+					/>
 				</div>
-				<h2 className="text-2xl font-semibold text-center">
-					Choose a password
-				</h2>
-				<h2 className="text-center">Must be at least 8 characters.</h2>
+				<div className="flex flex-col gap-y-[0.75rem]">
+					<h2 className="text-[1.875rem] text-[#181D27] font-semibold text-center leading-tight">
+						Choose a password
+					</h2>
+					<h2 className="text-center text-[#535862]">
+						Must be at least 8 characters.
+					</h2>
+				</div>
 			</div>
 
 			<form className="space-y-4" onSubmit={handleSubmit}>
@@ -52,7 +60,7 @@ export default function StepTwo({
 						name="password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
-						className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md border-gray-300  p-[10px] border focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Choose a password"
 						required
 					/>
@@ -63,16 +71,22 @@ export default function StepTwo({
 						name="confirm password"
 						value={confirmPassword}
 						onChange={(e) => setConfirmPassword(e.target.value)}
-						className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md border-gray-300  p-[10px] text-[16px] border focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Confirm password"
 						required
 					/>
 				</div>
 
-				<button className="w-full py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+				<button className="w-full p-[10px] font-semibold bg-[#7F56D9] text-white rounded-md  hover:bg-[#6947b1]">
 					Continue
 				</button>
 			</form>
+			<div className="flex gap-[1rem] w-full justify-center mt-8">
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#7F56D9] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+			</div>
 		</div>
 	);
 }

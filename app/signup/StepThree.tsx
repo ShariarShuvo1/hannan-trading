@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Upload } from "lucide-react";
-
-import districtsData from "../../public/data/district.json";
+import Image from "next/image";
 import User from "@/interfaces/User";
 import toast from "react-hot-toast";
 
@@ -51,12 +49,17 @@ export default function StepThree({
 	};
 
 	return (
-		<div className="bg-white w-full max-w-md mx-auto p-6 flex flex-col justify-center">
-			<div className="flex flex-col items-center mb-6">
-				<div className="bg-gray-200 p-4 rounded-full">
-					<Upload className="w-8 h-8 text-gray-500" />
+		<div className=" w-full max-w-md mx-auto p-6 flex flex-col justify-center gap-y-[32px] pt-16">
+			<div className="flex flex-col items-center gap-y-[32px]">
+				<div className="bg-white border p-[14px] rounded-[12px] ">
+					<Image
+						src="/assets/Icons/wallet-02.svg"
+						width={28}
+						height={28}
+						alt="mail"
+					/>
 				</div>
-				<h2 className="text-2xl font-semibold text-center">
+				<h2 className="text-[1.875rem] text-[#181D27] font-semibold text-center">
 					Provide your NID & Bank Details
 				</h2>
 			</div>
@@ -76,11 +79,13 @@ export default function StepThree({
 								nid_number: e.target.value,
 							})
 						}
-						className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md border-gray-300  p-2 border focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="NID Number"
 						required
 					/>
 				</div>
+
+				<div className="text-[16px] font-[500]">Bank Details</div>
 
 				<div>
 					<label className="block text-sm font-medium text-gray-700">
@@ -96,7 +101,7 @@ export default function StepThree({
 								bank_account_number: e.target.value,
 							});
 						}}
-						className="mt-1 block w-full rounded-md border-gray-300 p-2 border shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md border-gray-300 p-2 border  focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Account Number"
 						required
 					/>
@@ -115,7 +120,7 @@ export default function StepThree({
 								bank_account_holder_name: e.target.value,
 							});
 						}}
-						className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Account Holder Name"
 						required
 					/>
@@ -134,7 +139,7 @@ export default function StepThree({
 								bank_name: e.target.value,
 							});
 						}}
-						className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Bank Name"
 						required
 					/>
@@ -154,7 +159,7 @@ export default function StepThree({
 									bank_district: e.target.value,
 								});
 							}}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="District Name"
 							required
 						/>
@@ -173,20 +178,27 @@ export default function StepThree({
 									bank_branch: e.target.value,
 								});
 							}}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="Branch Name"
 							required
 						/>
 					</div>
 				</div>
-
-				<button
-					type="submit"
-					className="w-full py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-				>
-					Continue
-				</button>
+				<div className="py-2">
+					<button
+						type="submit"
+						className="w-full p-[10px] font-semibold bg-[#7F56D9] text-white rounded-md  hover:bg-[#6947b1]"
+					>
+						Continue
+					</button>
+				</div>
 			</form>
+			<div className="flex gap-[1rem] w-full justify-center mt-8">
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#7F56D9] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+			</div>
 		</div>
 	);
 }

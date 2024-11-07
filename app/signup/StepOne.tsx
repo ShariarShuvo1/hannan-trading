@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Upload } from "lucide-react";
-
+import Image from "next/image";
 import districtsData from "../../public/data/district.json";
 import User from "@/interfaces/User";
 import toast from "react-hot-toast";
@@ -63,12 +62,17 @@ export default function StepOne({
 	};
 
 	return (
-		<div className="bg-white w-full max-w-md mx-auto p-6 flex flex-col justify-center">
-			<div className="flex flex-col items-center mb-6">
-				<div className="bg-gray-200 p-4 rounded-full">
-					<Upload className="w-8 h-8 text-gray-500" />
+		<div className="w-full max-w-md mx-auto flex flex-col justify-center items-center h-full gap-y-[32px]">
+			<div className="flex flex-col items-center gap-y-[32px]">
+				<div className="bg-white border p-[14px] rounded-[12px] ">
+					<Image
+						src="/assets/Icons/image-user-right.svg"
+						width={28}
+						height={28}
+						alt="mail"
+					/>
 				</div>
-				<h2 className="text-2xl font-semibold text-center">
+				<h2 className="text-[1.875rem] text-[#181D27] font-semibold text-center">
 					Your Personal Information
 				</h2>
 			</div>
@@ -83,7 +87,7 @@ export default function StepOne({
 						name="fullName"
 						value={formData.fullName}
 						onChange={handleChange}
-						className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md border-gray-300 p-2 border focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Full Name"
 						required
 					/>
@@ -99,7 +103,7 @@ export default function StepOne({
 							name="fatherName"
 							value={formData.fatherName}
 							onChange={handleChange}
-							className="mt-1 block w-full rounded-md border-gray-300 p-2 border shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md border-gray-300 p-2 border  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="First name"
 							required
 						/>
@@ -113,7 +117,7 @@ export default function StepOne({
 							name="motherName"
 							value={formData.motherName}
 							onChange={handleChange}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="Last name"
 							required
 						/>
@@ -129,7 +133,7 @@ export default function StepOne({
 						name="email"
 						value={formData.email}
 						onChange={handleChange}
-						className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="you@company.com"
 						required
 					/>
@@ -144,7 +148,7 @@ export default function StepOne({
 						name="phoneNumber"
 						value={formData.phoneNumber}
 						onChange={handleChange}
-						className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="+880 000-0000"
 					/>
 				</div>
@@ -159,7 +163,7 @@ export default function StepOne({
 							name="houseNumber"
 							value={formData.houseNumber}
 							onChange={handleChange}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="House No."
 							required
 						/>
@@ -173,7 +177,7 @@ export default function StepOne({
 							name="village"
 							value={formData.village}
 							onChange={handleChange}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="Village"
 							required
 						/>
@@ -190,7 +194,7 @@ export default function StepOne({
 							name="po"
 							value={formData.po}
 							onChange={handleChange}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="House No."
 							required
 						/>
@@ -204,7 +208,7 @@ export default function StepOne({
 							name="ps"
 							value={formData.ps}
 							onChange={handleChange}
-							className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 							placeholder="Village"
 							required
 						/>
@@ -220,7 +224,7 @@ export default function StepOne({
 						title="district"
 						value={formData.district}
 						onChange={handleChange}
-						className="mt-1 block w-full rounded-md p-2 border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+						className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
 					>
 						{districtsData.districts.map((district) => (
 							<option key={district.id} value={district.name}>
@@ -250,11 +254,17 @@ export default function StepOne({
 
 				<button
 					type="submit"
-					className="w-full py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+					className="w-full py-2 font-semibold bg-[#7F56D9] text-white rounded-md  hover:bg-[#6947b1]"
 				>
 					Continue
 				</button>
 			</form>
+			<div className="flex gap-[1rem] w-full justify-center mt-8">
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#7F56D9] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+				<div className="min-h-[0.625rem] max-h-[0.625rem] min-w-[0.625rem] max-w-[0.625rem] bg-[#E9EAEB] rounded-full"></div>
+			</div>
 		</div>
 	);
 }

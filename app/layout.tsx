@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ToasterProvider } from "@/components/Notification/ToasterProvider";
+import { HeroHighlight } from "@/components/ui/hero-highlight";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -25,13 +27,20 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-			>
-				<ToasterProvider />
-				{children}
-			</body>
-		</html>
+		<ClerkProvider
+			signInFallbackRedirectUrl="/dashboard"
+			signUpFallbackRedirectUrl="/dashboard"
+		>
+			<html lang="en">
+				<body
+					className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				>
+					<HeroHighlight className="h-full">
+						<ToasterProvider />
+						{children}
+					</HeroHighlight>
+				</body>
+			</html>
+		</ClerkProvider>
 	);
 }

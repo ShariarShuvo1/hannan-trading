@@ -6,6 +6,7 @@ export const POST = async (req: Request) => {
 	try {
 		await connectToDB();
 		const { tempUser } = await req.json();
+		tempUser.password = "";
 
 		if (!tempUser) {
 			return NextResponse.json(
@@ -13,18 +14,10 @@ export const POST = async (req: Request) => {
 				{ status: 400 }
 			);
 		}
-		const email = tempUser.email;
-		let user = await User.findOne({ email });
-		if (user) {
-			return NextResponse.json(
-				{ message: "User already exists" },
-				{ status: 400 }
-			);
-		}
 
-		user = await User.create(tempUser);
+		await User.create(tempUser);
 		return NextResponse.json(
-			{ message: "Successfully signed up", id: user._id },
+			{ message: "Successfully signed up" },
 			{ status: 201 }
 		);
 	} catch (err) {
