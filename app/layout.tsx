@@ -30,6 +30,7 @@ export default function RootLayout({
 		<ClerkProvider
 			signInFallbackRedirectUrl="/dashboard"
 			signUpFallbackRedirectUrl="/dashboard"
+			dynamic
 		>
 			<html lang="en">
 				<body

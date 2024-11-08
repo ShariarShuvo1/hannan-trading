@@ -173,6 +173,7 @@ export default function StepFour({ user }: { user: User | null }) {
 			setLoading(false);
 			return;
 		}
+
 		tempUser.clerkId = clerkId;
 		const response = await fetch("/api/signup", {
 			method: "POST",

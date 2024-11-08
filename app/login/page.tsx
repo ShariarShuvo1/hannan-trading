@@ -31,7 +31,10 @@ export default function Auth() {
 		}
 		if (!isLoaded) return;
 		try {
-			const result = await signIn.create({ identifier: email, password });
+			const result = await signIn.create({
+				identifier: email,
+				password,
+			});
 			if (result.status === "complete") {
 				toast.success("Welcome back!");
 				window.location.href = "/dashboard";
