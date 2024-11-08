@@ -52,7 +52,7 @@ export default function Navbar() {
 					<>
 						<Link
 							href="/login"
-							className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100"
+							className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg bg-gray-100 hover:bg-gray-200"
 						>
 							Log in
 						</Link>

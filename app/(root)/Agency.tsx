@@ -13,6 +13,7 @@ export default function GetStarted() {
 						Design that influences how people work, learn, live and
 						experience the world.
 					</div>
+
 					<div className="text-[#535862] text-[18px] ">
 						Mi tincidunt elit, id quisque ligula ac diam, amet. Vel
 						etiam suspendisse morbi eleifend faucibus eget

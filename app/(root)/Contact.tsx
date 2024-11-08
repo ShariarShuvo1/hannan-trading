@@ -58,7 +58,7 @@ export default function Contact() {
 
 			<div className="w-full">
 				<img
-					src="/assets/images/root/contact.jpg"
+					src="/assets/images/root/contact.jpeg"
 					alt="Get Started"
 					className="object-cover w-full h-[600px]"
 				/>

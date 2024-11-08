@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Highlight } from "@/components/ui/hero-highlight";
 
 export default function GetStarted() {
 	return (
 		<div className="md:flex justify-between w-full py-[64px]">
 			<div className="flex flex-col justify-center w-full">
 				<div className="md:text-[3.75rem] text-4xl font-[500] tracking-[-1.2px] md:leading-[4.5rem]">
-					We invest in the companies of the future, today, for us!
+					We invest in the companies of the future,{" "}
+					<Highlight> today, for us!</Highlight>
 				</div>
 				<div className="text-[#535862] text-[20px] mt-[24px]">
 					— We&apos;re a full-service investment agency who specialise

@@ -1,22 +1,32 @@
+"use client";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
-import Image from "next/image";
+import { useInView } from "react-intersection-observer";
 
 export default function Master() {
+	const { ref, inView } = useInView({
+		triggerOnce: true,
+		threshold: 0.1,
+	});
+
 	return (
 		<div className="flex flex-col gap-[64px] py-[96px]">
-			<div className="flex flex-col gap-[12px] mb-[40px]">
-				<div className="flex flex-col gap-[12px]">
-					<div className="font-semibold text-[#6941C6] leading-[24px]">
-						The Owner!
+			{inView && (
+				<div className="flex flex-col gap-[12px] mb-[40px]">
+					<div className="flex flex-col gap-[12px]">
+						<div className="font-semibold text-[#6941C6] leading-[24px]">
+							The Owner!
+						</div>
+						<div className="font-semibold text-[36px] leading-[44px]">
+							<TextGenerateEffect words="Meet the Master Mind!" />
+						</div>
 					</div>
-					<div className="font-semibold text-[36px] leading-[44px]">
-						<TextGenerateEffect words="Meet the Master Mind!" />
+					<div className="text-[20px] text-[#535862] leading-[30px]">
+						<TextGenerateEffect words="I am a person full of potentiality with 100% trust for you!" />
 					</div>
 				</div>
-				<div className="text-[20px] text-[#535862] leading-[30px]">
-					<TextGenerateEffect words="I am a person full of potentiality with 100% trust for you!" />
-				</div>
-			</div>
+			)}
+
+			<div ref={ref} hidden={inView}></div>
 			<div className="flex flex-col lg:flex-row justify-between items-end w-full gap-[64px]">
 				<div className="flex flex-col justify-center w-full">
 					<div className="flex flex-col gap-[32px]">
@@ -133,7 +143,7 @@ export default function Master() {
 				</div>
 				<div className="max-w-[560px] max-h-[640px]">
 					<img
-						src="/assets/images/root/master.png"
+						src="/assets/images/root/master.jpeg"
 						alt="Get Started"
 						width={560}
 						height={640}
