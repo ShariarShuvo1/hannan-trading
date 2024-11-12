@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import User from "@/models/User";
-import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: Request) => {
 	try {
@@ -27,13 +26,11 @@ export const POST = async (req: Request) => {
 				method: "PATCH",
 				body: JSON.stringify({
 					public_metadata: {
-						role: "user",
+						role: ["user"],
 					},
 				}),
 			}
 		);
-
-		console.log(newRes);
 
 		if (!newRes.ok) {
 			return NextResponse.json(
@@ -43,7 +40,7 @@ export const POST = async (req: Request) => {
 		}
 
 		tempUser.password = "";
-		tempUser.role = "user";
+		tempUser.role = ["user"];
 		await User.create(tempUser);
 
 		return NextResponse.json(
