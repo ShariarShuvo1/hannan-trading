@@ -87,11 +87,11 @@ export default function LeftPanel() {
 							<li className="mb-2">
 								<div
 									onClick={() =>
-										router.push("/dashboard/admin/events")
+										router.push("/dashboard/agent/events")
 									}
 									className={`flex cursor-pointer rounded-lg p-2 flex-row items-center gap-2 ${
 										pathname.startsWith(
-											"/dashboard/admin/events"
+											"/dashboard/agent/events"
 										)
 											? "bg-[#FAFAFA]"
 											: ""

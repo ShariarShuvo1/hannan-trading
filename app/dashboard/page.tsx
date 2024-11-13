@@ -10,9 +10,10 @@ export default function Dashboard() {
 	useEffect(() => {
 		if (isLoaded && user) {
 			const role = user.publicMetadata.role as string[];
-			console.log(role);
 			if (role.includes("admin")) {
 				router.push("/dashboard/admin/events");
+			} else if (role.includes("user")) {
+				router.push("/dashboard/agent/events");
 			}
 		}
 	}, [isLoaded, user]);

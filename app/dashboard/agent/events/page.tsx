@@ -24,12 +24,14 @@ export default function Events() {
 	const [roi_based_sorting, setRoiBasedSorting] = useState("asc");
 	const [date_based_sorting, setDateBasedSorting] = useState("desc");
 	const [events, setEvents] = useState<Event[]>([]);
+	const [topThreeEvents, setTopThreeEvents] = useState<Event[]>([]);
+	const [topThreeLoading, setTopThreeLoading] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [totalPages, setTotalPages] = useState(0);
 
 	const fetchEvents = async () => {
 		setLoading(true);
-		const response = await fetch("/api/admin/events/get-all-events", {
+		const response = await fetch("/api/agent/events/get-all-events", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -50,6 +52,21 @@ export default function Events() {
 		}
 		setLoading(false);
 	};
+	const fetchTopEvents = async () => {
+		setTopThreeLoading(true);
+		const response = await fetch("/api/agent/events/get-latest-three");
+		const data = await response.json();
+		if (response.ok) {
+			setTopThreeEvents(data.events);
+		} else {
+			toast.error(data.message);
+		}
+		setTopThreeLoading(false);
+	};
+
+	useEffect(() => {
+		fetchTopEvents();
+	}, []);
 
 	useEffect(() => {
 		fetchEvents();
@@ -60,8 +77,31 @@ export default function Events() {
 	}
 
 	return (
-		<div className="py-[32px] bg-white h-full overflow-y-auto px-[24px] pb-4 w-full flex flex-col gap-[32px]">
+		<div className="py-[32px] bg-white h-full overflow-y-auto px-[24px]  w-full flex flex-col gap-[24px]">
 			<TopTitle router={router} />
+
+			<div className="w-full border-b pb-[20px] font-semibold text-[#181D27] text-[18px]">
+				Just Started
+			</div>
+
+			<div className="w-full flex flex-col lg:flex-row">
+				{topThreeLoading && (
+					<div className="w-full flex justify-center items-center">
+						<Spin size="large" />
+					</div>
+				)}
+				{!topThreeLoading &&
+					topThreeEvents &&
+					topThreeEvents.map((event, index) => (
+						<BigCard
+							key={index}
+							event={event}
+							index={index}
+							router={router}
+						/>
+					))}
+			</div>
+
 			<SearchBar
 				search_text={search_text}
 				setSearchText={setSearchText}
@@ -195,6 +235,65 @@ function Pagination({
 	);
 }
 
+function BigCard({
+	event,
+	index,
+	router,
+}: {
+	event: Event;
+	index: number;
+	router: AppRouterInstance;
+}) {
+	return (
+		<div className={`w-full  flex flex-col p-[12px]  justify-between `}>
+			<div className="flex flex-col w-full mb-[8px] items-start gap-[20px]">
+				<img
+					src={event.banner}
+					alt={event.name}
+					className=" w-full rounded-lg h-[240px] max-h-[240px] object-cover"
+				/>
+				<div className="text-[#6941C6] font-semibold text-[14px]">
+					{new Date(event.start_date).toLocaleDateString("en-US", {
+						month: "short",
+						day: "numeric",
+						year: "numeric",
+					})}
+				</div>
+			</div>
+			<div
+				onClick={() =>
+					router.push(`/dashboard/agent/events/${event._id}`)
+				}
+				className="w-full mb-[8px] cursor-pointer flex justify-between lg:justify-start items-center gap-[4px]"
+			>
+				<div className="text-[#181D27] hover:text-slate-850 font-semibold text-[18px]">
+					{event.name}
+				</div>
+				<Image
+					src="/assets/Icons/arrow-up-right.svg"
+					alt="right"
+					width={20}
+					height={20}
+				/>
+			</div>
+			<div className="text-[#535862] mb-[24px] hover:text-slate-850 text-start text-[16px]">
+				{event.tagline}
+			</div>
+			<div className="flex flex-wrap w-full items-center gap-[4px]">
+				<Badge text={event.roi.toString() + "% ROI"} />
+				<Badge
+					text={`Min. Amount: ৳` + event.minimum_deposit.toString()}
+					color="#2E90FA"
+				/>
+				<Badge
+					text={"Duration: " + event.duration.toString() + " Months"}
+					color="#17B26A"
+				/>
+			</div>
+		</div>
+	);
+}
+
 function RowCard({
 	event,
 	index,
@@ -222,7 +321,7 @@ function RowCard({
 					{event.name}
 				</div>
 			</div>
-			<div className="md:flex hidden w-full items-center gap-[4px]">
+			<div className="md:flex md:flex-wrap hidden w-full items-center gap-[4px]">
 				<Badge text={event.roi.toString() + "% ROI"} />
 				<Badge
 					text={`Min. Amount: ৳` + event.minimum_deposit.toString()}
@@ -241,28 +340,6 @@ function RowCard({
 						day: "numeric",
 						year: "numeric",
 					})}
-				</div>
-
-				<div className="flex items-center gap-[32px]">
-					<Image
-						src="/assets/Icons/edit-04.svg"
-						alt="edit"
-						width={20}
-						height={20}
-						className="cursor-pointer hover:opacity-70"
-						onClick={() =>
-							router.push(
-								`/dashboard/admin/events/edit-event/${event._id}`
-							)
-						}
-					/>
-					<Image
-						src="/assets/Icons/trash-01.svg"
-						alt="edit"
-						width={20}
-						height={20}
-						className="cursor-pointer hover:opacity-70"
-					/>
 				</div>
 			</div>
 		</div>
@@ -291,16 +368,31 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 				<div className="font-semibold text-[#535862] text-[24px]">
 					Events
 				</div>
-				<div className="text-[#535862]">Manage All of Your Events.</div>
 			</div>
-			<button
-				onClick={() =>
-					router.push("/dashboard/admin/events/create-event")
-				}
-				className="bg-[#7F56D9] text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
-			>
-				+ Create Event
-			</button>
+			<div className="flex gap-[12px] flex-col md:flex-row">
+				<button
+					onClick={() =>
+						router.push("/dashboard/admin/events/create-event")
+					}
+					className="bg-white flex gap-[4px] items-center hover:bg-slate-50 border border-[#D5D7DA] text-[#414651] h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
+				>
+					<Image
+						src="/assets/Icons/download-cloud-01.svg"
+						alt="cloud"
+						width={20}
+						height={20}
+					/>
+					Export My Invested List
+				</button>
+				<button
+					onClick={() =>
+						router.push("/dashboard/admin/events/create-event")
+					}
+					className="bg-[#7F56D9] hover:bg-[#764fc9] text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
+				>
+					<div>My Invested Events</div>
+				</button>
+			</div>
 		</div>
 	);
 }
