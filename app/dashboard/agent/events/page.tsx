@@ -245,7 +245,7 @@ function BigCard({
 	router: AppRouterInstance;
 }) {
 	return (
-		<div className={`w-full  flex flex-col p-[12px]  justify-between `}>
+		<div className={`w-full  flex flex-col p-[12px]  justify-start `}>
 			<div className="flex flex-col w-full mb-[8px] items-start gap-[20px]">
 				<img
 					src={event.banner}
@@ -277,7 +277,7 @@ function BigCard({
 				/>
 			</div>
 			<div className="text-[#535862] mb-[24px] hover:text-slate-850 text-start text-[16px]">
-				{event.tagline}
+				{event.tagline.split(" ").slice(0, 20).join(" ")}
 			</div>
 			<div className="flex flex-wrap w-full items-center gap-[4px]">
 				<Badge text={event.roi.toString() + "% ROI"} />
@@ -309,7 +309,12 @@ function RowCard({
 				index % 2 === 0 ? "bg-white" : "bg-[#FAFAFA]"
 			}`}
 		>
-			<div className="flex w-full items-center gap-[12px]">
+			<div
+				onClick={() =>
+					router.push(`/dashboard/agent/events/${event._id}`)
+				}
+				className="flex cursor-pointer hover:opacity-70 w-full items-center gap-[12px]"
+			>
 				<img
 					src={event.banner}
 					alt={event.name}
