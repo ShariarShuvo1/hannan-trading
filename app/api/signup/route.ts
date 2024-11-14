@@ -41,7 +41,55 @@ export const POST = async (req: Request) => {
 
 		tempUser.password = "";
 		tempUser.role = ["user"];
-		await User.create(tempUser);
+
+		const fullname = tempUser.fullname;
+		const fathername = tempUser.fathername;
+		const mothername = tempUser.mothername;
+		const email = tempUser.email;
+		const phone = tempUser.phone;
+		const house_no = tempUser.house_no;
+		const village = tempUser.village;
+		const po = tempUser.po;
+		const ps = tempUser.ps;
+		const district = tempUser.district;
+		const password = tempUser.password;
+		const nid_number = tempUser.nid_number;
+		const bank_account_number = tempUser.bank_account_number;
+		const bank_account_holder_name = tempUser.bank_account_holder_name;
+		const bank_name = tempUser.bank_name;
+		const bank_district = tempUser.bank_district;
+		const bank_branch = tempUser.bank_branch;
+		const profile_picture = tempUser.profile_picture;
+		const signature = tempUser.signature;
+		const routing_number = tempUser.routing_number;
+
+		await User.create({
+			fullname,
+			fathername,
+			mothername,
+			email,
+			phone,
+			house_no,
+			village,
+			po,
+			ps,
+			district,
+			password,
+			nid_number,
+			bank_info: [
+				{
+					bank_account_number,
+					bank_account_holder_name,
+					bank_name,
+					bank_district,
+					bank_branch,
+					routing_number,
+				},
+			],
+			profile_picture,
+			signature,
+			clerkId,
+		});
 
 		return NextResponse.json(
 			{ message: "Successfully signed up" },

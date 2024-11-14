@@ -28,6 +28,7 @@ export default function Events() {
 	const [topThreeLoading, setTopThreeLoading] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [totalPages, setTotalPages] = useState(0);
+	const [search_trigger, setSearchTrigger] = useState(false);
 
 	const fetchEvents = async () => {
 		setLoading(true);
@@ -52,6 +53,7 @@ export default function Events() {
 		}
 		setLoading(false);
 	};
+
 	const fetchTopEvents = async () => {
 		setTopThreeLoading(true);
 		const response = await fetch("/api/agent/events/get-latest-three");
@@ -69,11 +71,13 @@ export default function Events() {
 	}, []);
 
 	useEffect(() => {
+		console.log(search_text);
 		fetchEvents();
-	}, [page, roi_based_sorting, date_based_sorting]);
+	}, [page, roi_based_sorting, date_based_sorting, search_trigger]);
 
 	async function handleSearch() {
 		setPage(1);
+		setSearchTrigger(!search_trigger);
 	}
 
 	return (

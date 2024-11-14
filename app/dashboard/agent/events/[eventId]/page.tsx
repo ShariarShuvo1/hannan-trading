@@ -12,7 +12,6 @@ import {
 	Tooltip,
 	ResponsiveContainer,
 } from "recharts";
-import { LucideIcon } from "lucide-react"; // Replace with specific Lucide icon
 
 interface Event {
 	_id: string;
@@ -24,15 +23,6 @@ interface Event {
 	duration: number;
 	start_date: Date;
 }
-
-const sampleGraphData = [
-	{ name: "Jan", value: 70 },
-	{ name: "Feb", value: 75 },
-	{ name: "Mar", value: 80 },
-	{ name: "Apr", value: 90 },
-	{ name: "May", value: 95 },
-	{ name: "Jun", value: 100 },
-];
 
 export default function Page() {
 	const [event, setEvent] = useState<Event | null>(null);
@@ -57,19 +47,35 @@ export default function Page() {
 
 	const generateExpectedReturnData = (minimumDeposit: any, roi: any) => {
 		const data = [];
-		for (let i = 1; i <= 6; i++) {
-			const value = minimumDeposit * (1 + (roi / 100) * (i / 12));
-			data.push({
-				name: `Month ${i}`,
-				value: parseFloat(value.toFixed(2)),
-			});
+		if (event) {
+			for (let i = 1; i <= event.duration; i++) {
+				const value =
+					minimumDeposit * (roi / 100) * i + +minimumDeposit;
+				data.push({
+					name: `Month ${i}`,
+					value: parseFloat(value.toFixed(2)),
+				});
+			}
 		}
+
 		return data;
 	};
 
 	const minimumDeposit = event?.minimum_deposit || 17500;
-	const roi = event?.roi || 10; // Assume a default ROI if not provided
+	const roi = event?.roi || 10;
 	const expectedReturnData = generateExpectedReturnData(minimumDeposit, roi);
+
+	function getROIData(): any[] {
+		if (!event) return [];
+
+		return [
+			{ name: "Start", value: 0 },
+			{ name: "Step 1", value: event?.roi * 0.25 },
+			{ name: "Step 2", value: event?.roi * 0.5 },
+			{ name: "Step 3", value: event?.roi * 0.75 },
+			{ name: "End", value: event?.roi },
+		];
+	}
 
 	return (
 		<div className="bg-white w-full h-full">
@@ -130,7 +136,14 @@ export default function Page() {
 										</p>
 									)}
 								</div>
-								<button className="lg:ml-auto w-fit mt-4 lg:mt-0  px-4 py-2 h-fit bg-[#7F56D9] text-white rounded-lg font-semibold hover:bg-[#724dc2]">
+								<button
+									onClick={() =>
+										router.push(
+											`/dashboard/agent/events/${eventId}/transaction`
+										)
+									}
+									className="lg:ml-auto w-fit mt-4 lg:mt-0  px-4 py-2 h-fit bg-[#7F56D9] text-white rounded-lg font-semibold hover:bg-[#724dc2]"
+								>
 									Invest Now
 								</button>
 							</div>
@@ -157,8 +170,8 @@ export default function Page() {
 								<p className="text-2xl font-bold text-gray-800 px-4">
 									{event?.roi || 75}%
 								</p>
-								<ResponsiveContainer width="100%" height={60}>
-									<LineChart data={sampleGraphData}>
+								<ResponsiveContainer width="100%" height={150}>
+									<LineChart data={getROIData()}>
 										<XAxis dataKey="name" hide />
 										<YAxis hide />
 										<Tooltip />
@@ -178,11 +191,12 @@ export default function Page() {
 							<h3 className="text-sm font-semibold text-gray-700 p-4">
 								Expected Return{" "}
 								<span className="text-[#535862] font-[500] text-[12px]">
-									[Min. ৳10,000 Investment for 6 Months]
+									[Min. ৳{event.minimum_deposit} Investment
+									for {event.duration} Months]
 								</span>
 							</h3>
 							<div className=" bg-white px-4 w-full  border-t border-t-[#E9EAEB] rounded-lg">
-								<div className="flex gap-4">
+								<div className="flex gap-4 mt-2">
 									{event &&
 										event.roi &&
 										event.minimum_deposit && (
@@ -190,14 +204,24 @@ export default function Page() {
 												৳
 												{(
 													event.minimum_deposit *
-													(event.roi / 100)
+														(event.roi / 100) *
+														event.duration +
+													event.minimum_deposit
 												).toFixed(2)}
 											</p>
 										)}
 
 									<div className="flex items-center  text-sm font-semibold mb-2">
-										<span className="border text-[#17B26A] px-2 py-1 rounded-lg">
-											6 Months Duration
+										<span className="border flex gap-1 text-[#17B26A] px-2 py-1 rounded-lg">
+											<Image
+												src="/assets/Icons/arrow-up-right-green.svg"
+												width={12}
+												height={12}
+												alt="Event"
+											/>
+											<span>
+												{event.duration} Months Duration
+											</span>
 										</span>
 									</div>
 								</div>

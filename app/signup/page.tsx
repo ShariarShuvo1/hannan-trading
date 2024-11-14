@@ -16,7 +16,6 @@ export default function Signup() {
 	const { isSignedIn, isLoaded } = useAuth();
 
 	useEffect(() => {
-		console.log("isSignedIn", isSignedIn);
 		if (isSignedIn) {
 			route.push("/dashboard");
 		}

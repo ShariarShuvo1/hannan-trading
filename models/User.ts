@@ -41,31 +41,39 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: false,
 	},
+	bank_info: [
+		{
+			bank_account_number: {
+				type: String,
+				required: false,
+			},
+			bank_account_holder_name: {
+				type: String,
+				required: false,
+			},
+			bank_name: {
+				type: String,
+				required: false,
+			},
+			bank_district: {
+				type: String,
+				required: false,
+			},
+			bank_branch: {
+				type: String,
+				required: false,
+			},
+			routing_number: {
+				type: String,
+				required: false,
+			},
+		},
+	],
 	password: {
 		type: String,
 		required: false,
 	},
 	nid_number: {
-		type: String,
-		required: false,
-	},
-	bank_account_number: {
-		type: String,
-		required: false,
-	},
-	bank_account_holder_name: {
-		type: String,
-		required: false,
-	},
-	bank_name: {
-		type: String,
-		required: false,
-	},
-	bank_district: {
-		type: String,
-		required: false,
-	},
-	bank_branch: {
 		type: String,
 		required: false,
 	},

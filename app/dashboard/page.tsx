@@ -13,7 +13,7 @@ export default function Dashboard() {
 			if (role.includes("admin")) {
 				router.push("/dashboard/admin/events");
 			} else if (role.includes("user")) {
-				router.push("/dashboard/agent/events");
+				router.push("/dashboard/agent/home");
 			}
 		}
 	}, [isLoaded, user]);

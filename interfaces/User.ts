@@ -17,6 +17,7 @@ interface User {
 	bank_district?: string;
 	bank_branch?: string;
 	profile_picture?: string;
+	routing_number?: string;
 	signature?: string;
 	clerkId?: string;
 }

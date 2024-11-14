@@ -5,6 +5,15 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Spin } from "antd";
+import {
+	LineChart,
+	Line,
+	XAxis,
+	YAxis,
+	Tooltip,
+	ResponsiveContainer,
+	CartesianGrid,
+} from "recharts";
 
 interface Event {
 	_id: string;
@@ -27,10 +36,31 @@ export default function Events() {
 	const [loading, setLoading] = useState(false);
 	const [totalPages, setTotalPages] = useState(0);
 	const [search_trigger, setSearchTrigger] = useState(false);
+	const [total_invested, setTotalInvested] = useState(0);
+	const [all_date_and_amount, setAllDateAndAmount] = useState<
+		{ date: string; amount: number }[]
+	>([]);
+
+	useEffect(() => {
+		async function fetchTotalInvested() {
+			const response = await fetch("/api/agent/get-total", {
+				method: "GET",
+			});
+			const data = await response.json();
+			if (response.ok) {
+				setTotalInvested(data.total_invested);
+				setAllDateAndAmount(data.all_date_and_amount);
+				console.log(data);
+			} else {
+				toast.error(data.message);
+			}
+		}
+		fetchTotalInvested();
+	}, []);
 
 	const fetchEvents = async () => {
 		setLoading(true);
-		const response = await fetch("/api/admin/events/get-all-events", {
+		const response = await fetch("/api/agent/events/get-all-events", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -62,8 +92,42 @@ export default function Events() {
 	}
 
 	return (
-		<div className="py-[32px] bg-white h-full overflow-y-auto px-[24px] pb-4 w-full flex flex-col gap-[32px]">
+		<div className="py-[32px] bg-white h-full overflow-y-auto px-[24px]  w-full flex flex-col gap-[24px]">
 			<TopTitle router={router} />
+
+			<ResponsiveContainer width="100%" height={250}>
+				<LineChart
+					data={all_date_and_amount}
+					margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+				>
+					<CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
+					<XAxis
+						dataKey="date"
+						tick={{ fontSize: 12 }}
+						tickMargin={10}
+					/>
+					<YAxis tick={{ fontSize: 12 }} tickMargin={10} />
+					<Tooltip
+						formatter={(value) => `$${value}`}
+						labelFormatter={(label) => `Date: ${label}`}
+						contentStyle={{
+							backgroundColor: "#222",
+							color: "#fff",
+							borderRadius: "5px",
+							padding: "10px",
+						}}
+					/>
+					<Line
+						type="monotone"
+						dataKey="amount"
+						stroke="#4A90E2"
+						strokeWidth={2}
+						dot={true}
+						activeDot={{ r: 5 }}
+					/>
+				</LineChart>
+			</ResponsiveContainer>
+
 			<SearchBar
 				search_text={search_text}
 				setSearchText={setSearchText}
@@ -212,7 +276,12 @@ function RowCard({
 				index % 2 === 0 ? "bg-white" : "bg-[#FAFAFA]"
 			}`}
 		>
-			<div className="flex w-full items-center gap-[12px]">
+			<div
+				onClick={() =>
+					router.push(`/dashboard/agent/events/${event._id}`)
+				}
+				className="flex cursor-pointer hover:opacity-70 w-full items-center gap-[12px]"
+			>
 				<img
 					src={event.banner}
 					alt={event.name}
@@ -224,7 +293,7 @@ function RowCard({
 					{event.name}
 				</div>
 			</div>
-			<div className="md:flex hidden w-full items-center gap-[4px]">
+			<div className="md:flex md:flex-wrap hidden w-full items-center gap-[4px]">
 				<Badge text={event.roi.toString() + "% ROI"} />
 				<Badge
 					text={`Min. Amount: ৳` + event.minimum_deposit.toString()}
@@ -243,28 +312,6 @@ function RowCard({
 						day: "numeric",
 						year: "numeric",
 					})}
-				</div>
-
-				<div className="flex items-center gap-[32px]">
-					<Image
-						src="/assets/Icons/edit-04.svg"
-						alt="edit"
-						width={20}
-						height={20}
-						className="cursor-pointer hover:opacity-70"
-						onClick={() =>
-							router.push(
-								`/dashboard/admin/events/edit-event/${event._id}`
-							)
-						}
-					/>
-					<Image
-						src="/assets/Icons/trash-01.svg"
-						alt="edit"
-						width={20}
-						height={20}
-						className="cursor-pointer hover:opacity-70"
-					/>
 				</div>
 			</div>
 		</div>
@@ -291,18 +338,23 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Events
+					Welcome back
 				</div>
-				<div className="text-[#535862]">Manage All of Your Events.</div>
 			</div>
-			<button
-				onClick={() =>
-					router.push("/dashboard/admin/events/create-event")
-				}
-				className="bg-[#7F56D9] text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
-			>
-				+ Create Event
-			</button>
+			<div className="flex gap-[12px] flex-col md:flex-row">
+				<button
+					onClick={() => router.push("/dashboard/agent/events")}
+					className="bg-[#7F56D9] hover:bg-[#764fc9] flex items-center gap-1 text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
+				>
+					<Image
+						src="/assets/Icons/announcement-02.svg"
+						alt="cloud"
+						width={20}
+						height={20}
+					/>
+					Latest Events
+				</button>
+			</div>
 		</div>
 	);
 }

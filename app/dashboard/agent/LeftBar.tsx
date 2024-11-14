@@ -87,6 +87,30 @@ export default function LeftPanel() {
 							<li className="mb-2">
 								<div
 									onClick={() =>
+										router.push("/dashboard/agent/home")
+									}
+									className={`flex cursor-pointer rounded-lg p-2 flex-row items-center gap-2 ${
+										pathname.startsWith(
+											"/dashboard/agent/home"
+										)
+											? "bg-[#FAFAFA]"
+											: ""
+									}`}
+								>
+									<Image
+										src="/assets/Icons/home-line.svg"
+										width={24}
+										height={24}
+										alt="Home"
+									/>
+									<span className="text-[16px] text-[#252B37] hover:text-[#384153] font-semibold">
+										Home
+									</span>
+								</div>
+							</li>
+							<li className="mb-2">
+								<div
+									onClick={() =>
 										router.push("/dashboard/agent/events")
 									}
 									className={`flex cursor-pointer rounded-lg p-2 flex-row items-center gap-2 ${

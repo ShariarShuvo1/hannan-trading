@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import User from "@/interfaces/User";
 import toast from "react-hot-toast";
+import "./style.css";
 
 export default function StepThree({
 	user,
@@ -22,6 +23,7 @@ export default function StepThree({
 		bank_name: "",
 		bank_district: "",
 		bank_branch: "",
+		routing_number: "",
 	});
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,7 +34,8 @@ export default function StepThree({
 			!formData.bank_account_holder_name ||
 			!formData.bank_name ||
 			!formData.bank_district ||
-			!formData.bank_branch
+			!formData.bank_branch ||
+            !formData.routing_number
 		) {
 			toast.error("Please fill all the fields");
 			return;
@@ -44,12 +47,13 @@ export default function StepThree({
 		tempUser.bank_name = formData.bank_name;
 		tempUser.bank_district = formData.bank_district;
 		tempUser.bank_branch = formData.bank_branch;
+        tempUser.routing_number = formData.routing_number;
 		setUser(tempUser);
 		setCurrentStep(currentStep + 1);
 	};
 
 	return (
-		<div className=" w-full max-w-md mx-auto p-6 flex flex-col justify-center gap-y-[32px] pt-16">
+		<div className=" w-full h-full container-class overflow-y-scroll max-w-md mx-auto p-6 flex flex-col justify-center gap-y-[32px] pt-16">
 			<div className="flex flex-col items-center gap-y-[32px]">
 				<div className="bg-white border p-[14px] rounded-[12px] ">
 					<Image
@@ -103,6 +107,25 @@ export default function StepThree({
 						}}
 						className="mt-1 block w-full rounded-md border-gray-300 p-2 border  focus:border-indigo-500 focus:ring-indigo-500"
 						placeholder="Account Number"
+						required
+					/>
+				</div>
+				<div>
+					<label className="block text-sm font-medium text-gray-700">
+						Routing Number *
+					</label>
+					<input
+						type="text"
+						name="routing_number"
+						value={formData.routing_number}
+						onChange={(e) => {
+							setFormData({
+								...formData,
+								routing_number: e.target.value,
+							});
+						}}
+						className="mt-1 block w-full rounded-md border-gray-300 p-2 border  focus:border-indigo-500 focus:ring-indigo-500"
+						placeholder="Routing Number"
 						required
 					/>
 				</div>
