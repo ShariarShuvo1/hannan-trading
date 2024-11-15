@@ -90,6 +90,8 @@ export default function Events() {
 							event={event}
 							index={index}
 							router={router}
+							events={events}
+							setEvents={setEvents}
 						/>
 					))}
 			</div>
@@ -201,11 +203,38 @@ function RowCard({
 	event,
 	index,
 	router,
+	events,
+	setEvents,
 }: {
 	event: Event;
 	index: number;
 	router: AppRouterInstance;
+	events: Event[];
+	setEvents: (events: Event[]) => void;
 }) {
+	const [loading, setLoading] = useState(false);
+	async function handleDelete() {
+		setLoading(true);
+		const response = await fetch("/api/admin/events/create-event", {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				eventId: event._id,
+			}),
+		});
+		const data = await response.json();
+		if (response.ok) {
+			toast.success(data.message);
+			const temp = [...events];
+			temp.splice(index, 1);
+			setEvents(temp);
+		} else {
+			toast.error(data.message);
+		}
+		setLoading(false);
+	}
 	return (
 		<div
 			className={`w-full flex p-[12px] items-center border-b justify-between ${
@@ -258,13 +287,23 @@ function RowCard({
 							)
 						}
 					/>
-					<Image
-						src="/assets/Icons/trash-01.svg"
-						alt="edit"
-						width={20}
-						height={20}
-						className="cursor-pointer hover:opacity-70"
-					/>
+					{loading ? (
+						<Spin size="large" />
+					) : (
+						<button
+							onClick={handleDelete}
+							className=" hover:opacity-70 h-[20px] w-full justify-end flex items-center gap-1 font-semibold rounded-[8px]"
+							name="Delete"
+							title="Delete"
+						>
+							<Image
+								src="/assets/Icons/trash-01.svg"
+								alt="delete"
+								width={20}
+								height={20}
+							/>
+						</button>
+					)}
 				</div>
 			</div>
 		</div>

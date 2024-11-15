@@ -11,12 +11,11 @@ export default function Dashboard() {
 		if (isLoaded && user) {
 			const role = user.publicMetadata.role as string[];
 			if (role.includes("admin")) {
-				router.push("/dashboard/admin/events");
+				router.push("/dashboard/admin/home");
 			} else if (role.includes("user")) {
 				router.push("/dashboard/agent/home");
 			}
 		}
 	}, [isLoaded, user]);
 	if (!isLoaded) return <Spin fullscreen size="large" />;
-	return <div className="flex">Hey</div>;
 }

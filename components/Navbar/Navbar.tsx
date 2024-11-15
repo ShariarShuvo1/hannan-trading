@@ -21,19 +21,19 @@ export default function Navbar() {
 				/>
 				<nav className="hidden md:flex space-x-6">
 					<Link
-						href="/events"
+						href="/dashboard/agent/events"
 						className="text-gray-700 hover:text-purple-600"
 					>
 						Events
 					</Link>
 					<Link
-						href="/investors"
+						href="/dashboard/agent/investors"
 						className="text-gray-700 hover:text-purple-600"
 					>
 						Investors
 					</Link>
 					<Link
-						href="/resources"
+						href="/dashboard/agent/home"
 						className="text-gray-700 hover:text-purple-600"
 					>
 						Resources
@@ -87,7 +87,7 @@ export default function Navbar() {
 				<div className="absolute top-full w-full bg-white left-0 p-2  border-t border-gray-200 flex flex-col items-center md:hidden">
 					<nav className="flex flex-col w-full space-y-4 py-4">
 						<Link
-							href="/events"
+							href="/dashboard/agent/events"
 							className="text-gray-700 hover:text-purple-600"
 							onClick={() => setIsOpen(false)}
 						>
@@ -95,7 +95,7 @@ export default function Navbar() {
 						</Link>
 						<hr />
 						<Link
-							href="/investors"
+							href="/dashboard/agent/investors"
 							className="text-gray-700 hover:text-purple-600"
 							onClick={() => setIsOpen(false)}
 						>
@@ -103,7 +103,7 @@ export default function Navbar() {
 						</Link>
 						<hr />
 						<Link
-							href="/resources"
+							href="/dashboard/agent/home"
 							className="text-gray-700 hover:text-purple-600"
 							onClick={() => setIsOpen(false)}
 						>

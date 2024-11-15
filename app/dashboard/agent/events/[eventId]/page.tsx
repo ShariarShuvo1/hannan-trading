@@ -77,6 +77,14 @@ export default function Page() {
 		];
 	}
 
+	const isExpired = event
+		? new Date() >
+		  new Date(
+				new Date(event.start_date).getTime() +
+					event.duration * 24 * 60 * 60 * 1000
+		  )
+		: false;
+
 	return (
 		<div className="bg-white w-full h-full">
 			{loading && <Spin fullscreen size="large" />}
@@ -136,16 +144,18 @@ export default function Page() {
 										</p>
 									)}
 								</div>
-								<button
-									onClick={() =>
-										router.push(
-											`/dashboard/agent/events/${eventId}/transaction`
-										)
-									}
-									className="lg:ml-auto w-fit mt-4 lg:mt-0  px-4 py-2 h-fit bg-[#7F56D9] text-white rounded-lg font-semibold hover:bg-[#724dc2]"
-								>
-									Invest Now
-								</button>
+								{!isExpired && (
+									<button
+										onClick={() =>
+											router.push(
+												`/dashboard/agent/events/${event?._id}/transaction`
+											)
+										}
+										className="lg:ml-auto w-fit mt-4 lg:mt-0 px-4 py-2 h-fit bg-[#7F56D9] text-white rounded-lg font-semibold hover:bg-[#724dc2]"
+									>
+										Invest Now
+									</button>
+								)}
 							</div>
 						</div>
 					</div>

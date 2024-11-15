@@ -380,23 +380,7 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 			</div>
 			<div className="flex gap-[12px] flex-col md:flex-row">
 				<button
-					onClick={() =>
-						router.push("/dashboard/admin/events/create-event")
-					}
-					className="bg-white flex gap-[4px] items-center hover:bg-slate-50 border border-[#D5D7DA] text-[#414651] h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
-				>
-					<Image
-						src="/assets/Icons/download-cloud-01.svg"
-						alt="cloud"
-						width={20}
-						height={20}
-					/>
-					Export My Invested List
-				</button>
-				<button
-					onClick={() =>
-						router.push("/dashboard/admin/events/create-event")
-					}
+					onClick={() => router.push("/dashboard/agent/home")}
 					className="bg-[#7F56D9] hover:bg-[#764fc9] text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
 				>
 					<div>My Invested Events</div>

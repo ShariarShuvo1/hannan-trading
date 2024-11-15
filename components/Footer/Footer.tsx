@@ -37,7 +37,7 @@ export default function Footer() {
 				</nav>
 				<div className="flex flex-col md:flex-row items-center md:justify-around w-full border-t border-gray-700 pt-8">
 					<div className="text-sm text-gray-500 text-center">
-						© 2077 Untitled UI. <br className="md:hidden" /> All
+						© 2024 Hannan Trading. <br className="md:hidden" /> All
 						rights reserved.
 					</div>
 					<div className="flex space-x-4 text-sm">

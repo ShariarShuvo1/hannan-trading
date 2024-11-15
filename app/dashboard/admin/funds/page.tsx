@@ -16,88 +16,111 @@ import {
 	CartesianGrid,
 } from "recharts";
 
-interface Transaction {
-	event_id: string;
-	event_name: string;
-	event_banner: string;
-	event_status: boolean;
+interface Agent {
+	_id: string;
+	profile_picture: string;
+	fullname: string;
+	email: string;
 	amount: number;
-	bank_account_number: string;
-	bank_name: string;
-	transaction_created_at: Date;
-	transaction_id: string;
 }
 
 export default function Events() {
 	const router = useRouter();
 	const [search_text, setSearchText] = useState("");
 	const [page, setPage] = useState(1);
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const [agents, setAgents] = useState<Agent[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [totalPages, setTotalPages] = useState(0);
 	const [search_trigger, setSearchTrigger] = useState(false);
-	const [total_invested, setTotalInvested] = useState(0);
-	const [all_date_and_amount, setAllDateAndAmount] = useState<
-		{ date: string; totalAmount: number }[]
+	const [total_funds, setTotalFunds] = useState(0);
+	const [all_email_and_amount, setAllEmailAndAmount] = useState<
+		{ email: string; totalAmount: number }[]
+	>([]);
+	const [all_month_and_totalEvents, setAllMonthAndTotalEvents] = useState<
+		{ month: string; totalEvents: number }[]
 	>([]);
 	const [days, setDays] = useState(7);
+	const [currentMonthName, setCurrentMonthName] = useState("");
+	const [previousMonthName, setPreviousMonthName] = useState("");
 
 	useEffect(() => {
-		if (transactions.length <= 0) return;
+		const monthNames = [
+			"January",
+			"February",
+			"March",
+			"April",
+			"May",
+			"June",
+			"July",
+			"August",
+			"September",
+			"October",
+			"November",
+			"December",
+		];
+		const currentMonth = new Date().getMonth();
+		setCurrentMonthName(monthNames[currentMonth]);
+		const previousMonth = (currentMonth - 1 + 12) % 12;
+		setPreviousMonthName(monthNames[previousMonth]);
+	}, []);
 
-		const dateAmountMap = transactions.reduce<Record<string, number>>(
-			(acc, transaction) => {
-				const dateKey = new Date(
-					transaction.transaction_created_at
-				).toLocaleDateString("en-US", {
-					month: "short",
-					day: "numeric",
-					year: "numeric",
-				});
-				acc[dateKey] = (acc[dateKey] || 0) + transaction.amount;
+	useEffect(() => {
+		if (agents.length <= 0) return;
+
+		const emailAmountMap = agents.reduce<Record<string, number>>(
+			(acc, agent) => {
+				acc[agent.email] = agent.amount;
 				return acc;
 			},
 			{}
 		);
 
-		const dateAndAmountArray = Object.entries(dateAmountMap).map(
-			([date, totalAmount]) => ({
-				date,
+		const emailAndAmountArray = Object.entries(emailAmountMap).map(
+			([email, totalAmount]) => ({
+				email,
 				totalAmount,
 			})
 		);
 
-		setAllDateAndAmount(dateAndAmountArray);
-		setTotalInvested(
-			transactions.reduce(
-				(acc, transaction) => acc + transaction.amount,
-				0
-			)
-		);
-	}, [transactions]);
+		setAllEmailAndAmount(emailAndAmountArray);
+		setTotalFunds(agents.reduce((acc, agent) => acc + agent.amount, 0));
+	}, [agents]);
 
 	const fetchEvents = async () => {
 		setLoading(true);
-		const response = await fetch("/api/agent/get-investment", {
+		const response = await fetch("/api/admin/funds/get-funds", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
 				page,
-				days,
 				search_text,
 			}),
 		});
 		const data = await response.json();
 		if (response.ok) {
-			setTransactions(data.results);
+			setAgents(data.data);
 			setTotalPages(data.totalPages);
 		} else {
 			toast.error(data.message);
 		}
 		setLoading(false);
 	};
+
+	const fetchEventsCounts = async () => {
+		const response = await fetch("/api/admin/funds/get-total-events");
+		const data = await response.json();
+		if (response.ok) {
+			setAllMonthAndTotalEvents(data);
+		} else {
+			toast.error(data.message);
+		}
+	};
+
+	useEffect(() => {
+		fetchEventsCounts();
+	}, []);
 
 	useEffect(() => {
 		fetchEvents();
@@ -111,53 +134,123 @@ export default function Events() {
 	return (
 		<div className="py-[32px] bg-white h-full overflow-y-auto px-[24px]  w-full flex flex-col gap-[24px]">
 			<TopTitle router={router} />
-
-			<div className="border p-4 rounded-lg">
-				<div className="w-full text-[#181D27] text-[18px] font-semibold">
-					Total Invested
+			<div className="flex flex-col w-full lg:flex-row gap-4">
+				<div className="flex flex-col w-full border rounded-lg">
+					<div className="w-full py-[12px] px-[16px] bg-[#FDFDFD] rounded-lg text-[#181D27] text-[18px] font-semibold">
+						Total Funds
+					</div>
+					<div className="">
+						<div className="w-full px-[16px] rounded-t-lg border-t text-[#181D27] text-[30px] font-semibold">
+							৳{total_funds}
+						</div>
+						<div className="w-full h-64">
+							<ResponsiveContainer width="100%" height="100%">
+								<LineChart data={all_email_and_amount}>
+									<XAxis dataKey="email" stroke="#ddd" />
+									<YAxis stroke="#ddd" />
+									<Tooltip
+										contentStyle={{
+											backgroundColor: "#fff",
+											borderColor: "#6941C6",
+											borderRadius: "8px",
+											color: "#fff",
+										}}
+										labelStyle={{ color: "#6941C6" }}
+										formatter={(value: number) => [
+											`$${value}`,
+											"Total Amount",
+										]}
+									/>
+									<Line
+										type="monotone"
+										dataKey="totalAmount"
+										stroke="#6941C6"
+										strokeWidth={3}
+										dot={{ r: 4 }}
+									/>
+								</LineChart>
+							</ResponsiveContainer>
+						</div>
+					</div>
 				</div>
-				<div className="w-full text-[#181D27] text-[30px] font-semibold">
-					৳{total_invested}
-				</div>
-				<div className="w-full h-64">
-					<ResponsiveContainer width="100%" height="100%">
-						<LineChart
-							data={all_date_and_amount}
-							margin={{
-								top: 20,
-								right: 30,
-								left: 20,
-								bottom: 5,
-							}}
-						>
-							<CartesianGrid
-								strokeDasharray="3 3"
-								stroke="#444"
-							/>
-							<XAxis dataKey="date" stroke="#ddd" />
-							<YAxis stroke="#ddd" />
-							<Tooltip
-								contentStyle={{
-									backgroundColor: "#fff",
-									borderColor: "#6941C6",
-									borderRadius: "8px",
-									color: "#fff",
-								}}
-								labelStyle={{ color: "#6941C6" }}
-								formatter={(value: number) => [
-									`$${value}`,
-									"Total Amount",
-								]}
-							/>
-							<Line
-								type="monotone"
-								dataKey="totalAmount"
-								stroke="#6941C6"
-								strokeWidth={3}
-								dot={{ r: 4 }}
-							/>
-						</LineChart>
-					</ResponsiveContainer>
+				<div className="flex flex-col w-full border rounded-lg">
+					<div className="w-full py-[12px] px-[16px] bg-[#FDFDFD] rounded-lg text-[#181D27] text-[18px] font-semibold">
+						Ongoing Events
+					</div>
+					<div className="">
+						<div className="w-full rounded-t-lg items-center border-t flex gap-4  px-[16px]">
+							<div className=" text-[#181D27] text-[30px] font-semibold">
+								{all_month_and_totalEvents.find(
+									(event) => event.month === currentMonthName
+								)?.totalEvents || 0}
+							</div>
+							<div className="flex items-center ">
+								<Image
+									src="/assets/Icons/arrow-up.svg"
+									alt="up"
+									width={16}
+									height={16}
+								/>
+								<span className="text-[#079455] text-[14px]">
+									{}
+									{(() => {
+										const currentMonthEvents =
+											all_month_and_totalEvents.find(
+												(event) =>
+													event.month ===
+													currentMonthName
+											)?.totalEvents || 0;
+										const previousMonthEvents =
+											all_month_and_totalEvents.find(
+												(event) =>
+													event.month ===
+													previousMonthName
+											)?.totalEvents || 0;
+										const percentageChange =
+											previousMonthEvents === 0
+												? currentMonthEvents === 0
+													? 0
+													: 100
+												: ((currentMonthEvents -
+														previousMonthEvents) /
+														previousMonthEvents) *
+												  100;
+										return `${percentageChange.toFixed(
+											2
+										)}%`;
+									})()}
+								</span>
+							</div>
+						</div>
+						<div className="w-full h-64">
+							<ResponsiveContainer width="100%" height="100%">
+								<LineChart data={all_month_and_totalEvents}>
+									<XAxis dataKey="month" stroke="#ddd" />
+									<YAxis stroke="#ddd" />
+									<Tooltip
+										contentStyle={{
+											backgroundColor: "#fff",
+											borderColor: "#6941C6",
+											borderRadius: "8px",
+											color: "#fff",
+										}}
+										labelStyle={{ color: "#6941C6" }}
+										formatter={(value: number) => [
+											`${value}`,
+											"Total Event",
+										]}
+									/>
+									<Line
+										type="monotone"
+										dataKey="totalEvents"
+										stroke="#6941C6"
+										strokeWidth={3}
+										dot={{ r: 4 }}
+									/>
+								</LineChart>
+							</ResponsiveContainer>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div className="border rounded-lg w-full pb-4 flex flex-col gap-[24px]">
@@ -166,7 +259,7 @@ export default function Events() {
 						search_text={search_text}
 						setSearchText={setSearchText}
 						handleSearch={handleSearch}
-						transactions={transactions}
+						agents={agents}
 						days={days}
 						setDays={setDays}
 					/>
@@ -178,15 +271,12 @@ export default function Events() {
 							</div>
 						)}
 						{!loading &&
-							transactions &&
-							transactions.map((transaction, index) => (
+							agents &&
+							agents.map((agent, index) => (
 								<RowCard
 									key={index}
-									transaction={transaction}
+									agent={agent}
 									index={index}
-									router={router}
-									transactions={transactions}
-									setTransactions={setTransactions}
 								/>
 							))}
 					</div>
@@ -296,147 +386,33 @@ function Pagination({
 	);
 }
 
-function RowCard({
-	transaction,
-	index,
-	router,
-	transactions,
-	setTransactions,
-}: {
-	transaction: Transaction;
-	index: number;
-	router: AppRouterInstance;
-	transactions: Transaction[];
-	setTransactions: (transactions: Transaction[]) => void;
-}) {
-	const [loading, setLoading] = useState(false);
-	async function handleDelete() {
-		setLoading(true);
-		const response = await fetch("/api/agent/delete-trans", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				transId: transaction.transaction_id,
-			}),
-		});
-		const data = await response.json();
-		if (response.ok) {
-			toast.success(data.message);
-			const temp = [...transactions];
-			temp.splice(index, 1);
-			setTransactions(temp);
-		} else {
-			toast.error(data.message);
-		}
-		setLoading(false);
-	}
-
+function RowCard({ agent, index }: { agent: Agent; index: number }) {
 	return (
 		<div
 			className={`w-full flex p-[12px]  items-center border-b justify-between ${
 				index % 2 === 0 ? "bg-white" : "bg-[#FAFAFA]"
 			}`}
 		>
-			<div
-				onClick={() =>
-					router.push(
-						`/dashboard/agent/events/${transaction.event_id}`
-					)
-				}
-				className="flex cursor-pointer hover:opacity-70 w-full items-center gap-[12px]"
-			>
+			<div className="flex w-full items-center gap-[12px]">
 				<img
-					src={transaction.event_banner}
-					alt={transaction.event_name}
+					src={agent.profile_picture}
+					alt={agent.fullname}
 					width={40}
 					height={40}
 					className="rounded-full aspect-square object-cover"
 				/>
 				<div className="text-[#181D27] text-wrap font-[500] text-[14px]">
-					<span className="lg:hidden">
-						{transaction.event_name.slice(0, 10) +
-							(transaction.event_name.length > 10 ? "..." : "")}
-					</span>
-					<span className="hidden lg:flex">
-						{transaction.event_name}
-					</span>
+					<span className="">{agent.fullname}</span>
 				</div>
+			</div>
+			<div className="text-[#535862] hidden lg:flex w-full text-wrap text-[14px]">
+				<span className="">{agent.email}</span>
 			</div>
 
 			<div className="w-full flex px-[12px] items-center  justify-start">
 				<div className="flex text-[#535862] text-[14px] items-center justify-between w-full ">
-					৳{transaction.amount}
+					৳{agent.amount}
 				</div>
-				<div className="lg:flex hidden text-[#535862] text-[14px] items-center justify-between w-full ">
-					{new Date(
-						transaction.transaction_created_at
-					).toLocaleDateString("en-US", {
-						month: "short",
-						day: "numeric",
-						year: "numeric",
-					})}
-				</div>
-				<div className="lg:flex hidden text-[#535862] text-[14px] items-center justify-between w-full ">
-					{transaction.event_status ? (
-						<Badge text="Event Ongoing" color="Ongoing" />
-					) : (
-						<Badge text="Event Completed" color="Completed" />
-					)}
-				</div>
-			</div>
-			<div className="lg:w-full items-center flex lg:justify-between justify-end">
-				<div className="hidden lg:flex flex-col text-start">
-					<div className="text-[#181D27] font-[500]">
-						{transaction.bank_name}
-					</div>
-					<div className="text-[#535862]">
-						{transaction.bank_account_number}
-					</div>
-				</div>
-				{loading ? (
-					<Spin size="large" />
-				) : (
-					<button
-						onClick={handleDelete}
-						className=" hover:opacity-70 h-[20px] w-[20px] flex items-center gap-1 font-semibold  rounded-[8px]"
-						name="Delete"
-						title="Delete"
-					>
-						<Image
-							src="/assets/Icons/trash-01.svg"
-							alt="delete"
-							width={20}
-							height={20}
-						/>
-					</button>
-				)}
-			</div>
-		</div>
-	);
-}
-
-function Badge({ text, color }: { text: string; color?: string }) {
-	return (
-		<div
-			className={`rounded-full px-[8px] border flex gap-[4px] items-center px[6px] py-[2px] text-[#414651] font-[500] ${
-				color === "Ongoing"
-					? `bg-[#ECFDF3] border-[#ABEFC6]`
-					: "bg-[#EFF8FF] border-[#B2DDFF]"
-			} text-[12px]`}
-		>
-			<div
-				className={`h-[8px] w-[8px] ${
-					color === "Ongoing" ? `bg-[#17B26A]` : "bg-[#2E90FA]"
-				} rounded-full`}
-			></div>
-			<div
-				className={`${
-					color === "Ongoing" ? `text-[#067647]` : "text-[#175CD3]"
-				}`}
-			>
-				{text}
 			</div>
 		</div>
 	);
@@ -447,22 +423,11 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Welcome back
+					Funds
 				</div>
-			</div>
-			<div className="flex gap-[12px] flex-col md:flex-row">
-				<button
-					onClick={() => router.push("/dashboard/agent/events")}
-					className="bg-[#7F56D9] hover:bg-[#764fc9] flex items-center gap-1 text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
-				>
-					<Image
-						src="/assets/Icons/announcement-02.svg"
-						alt="cloud"
-						width={20}
-						height={20}
-					/>
-					Latest Events
-				</button>
+				<div className=" text-[#535862] text-[16px]">
+					Manage All the Funds You Have Received from Your Agents.
+				</div>
 			</div>
 		</div>
 	);
@@ -472,29 +437,27 @@ function SearchBar({
 	search_text,
 	setSearchText,
 	handleSearch,
-	transactions,
+	agents,
 	days,
 	setDays,
 }: {
 	search_text: string;
 	setSearchText: (text: string) => void;
 	handleSearch: () => void;
-	transactions: Transaction[];
+	agents: Agent[];
 	days: number;
 	setDays: (days: number) => void;
 }) {
 	async function handleExcelDownload() {
-		const data = transactions.map((transaction) => ({
-			"Event Name": transaction.event_name,
-			"Event Status": transaction.event_status ? "Active" : "Inactive",
-			Amount: transaction.amount,
-			"Bank Account Number": transaction.bank_account_number,
-			"Bank Name": transaction.bank_name,
+		const data = agents.map((agent) => ({
+			Name: agent.fullname,
+			Email: agent.email,
+			Amount: agent.amount,
 		}));
 
 		const worksheet = XLSX.utils.json_to_sheet(data);
 		const workbook = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+		XLSX.utils.book_append_sheet(workbook, worksheet, "Agents");
 
 		const excelBuffer = XLSX.write(workbook, {
 			bookType: "xlsx",
@@ -506,7 +469,7 @@ function SearchBar({
 		const url = window.URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = url;
-		a.download = `transactions_${new Date().toISOString()}.xlsx`;
+		a.download = `agents${new Date().toISOString()}.xlsx`;
 		a.click();
 		window.URL.revokeObjectURL(url);
 	}
@@ -514,7 +477,7 @@ function SearchBar({
 		<div className="flex flex-col">
 			<div className="w-full px-4 pb-2 border-b mt-2 flex md:flex-row flex-col justify-between items-center gap-[20px]">
 				<div className="w-full font-semibold text-[#181D27] text-[18px]">
-					Recent Investments
+					Agents
 				</div>
 				<button
 					onClick={handleExcelDownload}
@@ -587,18 +550,9 @@ function SearchBar({
 function SortingBar() {
 	return (
 		<div className="w-full flex text-[12px] p-[12px] items-center text-[#717680] bg-[#FAFAFA]  justify-between">
-			<div className="w-full font-semibold ">Transaction</div>
-			<div className="w-full flex px-[12px] items-center  justify-start">
-				<div className="w-full font-semibold ">Amount</div>
-				<div className="w-full hidden lg:flex font-semibold ">Date</div>
-				<div className="w-full hidden lg:flex font-semibold ">
-					Event Status
-				</div>
-			</div>
-			<div className="w-full font-semibold hidden lg:flex">Account</div>
-			<div className="lg:w-full font-semibold lg:hidden text-end">
-				Action
-			</div>
+			<div className="w-full font-semibold ">Agents</div>
+			<div className="w-full hidden lg:flex font-semibold ">Email</div>
+			<div className="w-full font-semibold ">Amount</div>
 		</div>
 	);
 }

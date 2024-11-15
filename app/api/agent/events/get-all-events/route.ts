@@ -92,7 +92,7 @@ export const POST = async (req: Request) => {
 			.sort(sortCondition)
 			.skip((page - 1) * eventEachPage)
 			.limit(eventEachPage);
-		if (!events || events.length === 0) {
+		if (!events) {
 			return NextResponse.json(
 				{ message: "No events found" },
 				{ status: 404 }

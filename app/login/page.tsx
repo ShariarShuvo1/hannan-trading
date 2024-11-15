@@ -14,15 +14,11 @@ export default function Auth() {
 	const { signIn, isLoaded } = useSignIn();
 	const { isSignedIn } = useAuth();
 
-	if (isSignedIn) {
-		route.push("/dashboard");
-	}
-
 	useEffect(() => {
 		if (isSignedIn) {
 			route.push("/dashboard");
 		}
-	}, [isSignedIn]);
+	}, [isLoaded, isSignedIn]);
 
 	async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();

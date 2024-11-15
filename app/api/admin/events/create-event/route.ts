@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import Event from "@/models/Event";
+import Transaction from "@/models/Transaction";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: Request) => {
@@ -67,7 +68,6 @@ export const POST = async (req: Request) => {
 export const GET = async (req: Request) => {
 	try {
 		await connectToDB();
-		console.log("heyya");
 
 		const user = await currentUser();
 
@@ -88,7 +88,6 @@ export const GET = async (req: Request) => {
 		}
 
 		const { searchParams } = new URL(req.url);
-		console.log(searchParams);
 		const eventId = searchParams.get("eventId");
 
 		if (!eventId) {
@@ -98,10 +97,7 @@ export const GET = async (req: Request) => {
 			);
 		}
 
-		console.log(eventId);
-
 		const event = await Event.findById(eventId);
-		console.log(event);
 
 		if (!event) {
 			return NextResponse.json(
@@ -185,6 +181,62 @@ export const PUT = async (req: Request) => {
 		await event.save();
 		return NextResponse.json(
 			{ message: "Event updated successfully" },
+			{ status: 200 }
+		);
+	} catch (err) {
+		return NextResponse.json(
+			{ message: "Internal server error" },
+			{ status: 500 }
+		);
+	}
+};
+
+export const DELETE = async (req: Request) => {
+	try {
+		await connectToDB();
+
+		const user = await currentUser();
+
+		if (!user) {
+			return NextResponse.json(
+				{ message: "Unauthorized" },
+				{ status: 401 }
+			);
+		}
+
+		const role: string[] = user.publicMetadata.role as string[];
+
+		if (!role.includes("admin")) {
+			return NextResponse.json(
+				{ message: "Unauthorized" },
+				{ status: 401 }
+			);
+		}
+
+		const { eventId } = await req.json();
+
+		if (!eventId) {
+			return NextResponse.json(
+				{ message: "Event ID is required" },
+				{ status: 400 }
+			);
+		}
+
+		const event = await Event.findById(eventId);
+
+		if (!event) {
+			return NextResponse.json(
+				{ message: "Event not found" },
+				{ status: 404 }
+			);
+		}
+
+		await Transaction.deleteMany({ event: eventId });
+
+		await Event.findByIdAndDelete(eventId);
+
+		return NextResponse.json(
+			{ message: "Event deleted successfully" },
 			{ status: 200 }
 		);
 	} catch (err) {

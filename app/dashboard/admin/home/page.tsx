@@ -26,6 +26,10 @@ interface Transaction {
 	bank_name: string;
 	transaction_created_at: Date;
 	transaction_id: string;
+	agent_name: string;
+	agent_id: string;
+	agent_email: string;
+	agent_profile_picture: string;
 }
 
 export default function Events() {
@@ -78,7 +82,7 @@ export default function Events() {
 
 	const fetchEvents = async () => {
 		setLoading(true);
-		const response = await fetch("/api/agent/get-investment", {
+		const response = await fetch("/api/admin/get-investment", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -309,30 +313,6 @@ function RowCard({
 	transactions: Transaction[];
 	setTransactions: (transactions: Transaction[]) => void;
 }) {
-	const [loading, setLoading] = useState(false);
-	async function handleDelete() {
-		setLoading(true);
-		const response = await fetch("/api/agent/delete-trans", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				transId: transaction.transaction_id,
-			}),
-		});
-		const data = await response.json();
-		if (response.ok) {
-			toast.success(data.message);
-			const temp = [...transactions];
-			temp.splice(index, 1);
-			setTransactions(temp);
-		} else {
-			toast.error(data.message);
-		}
-		setLoading(false);
-	}
-
 	return (
 		<div
 			className={`w-full flex p-[12px]  items-center border-b justify-between ${
@@ -345,7 +325,7 @@ function RowCard({
 						`/dashboard/agent/events/${transaction.event_id}`
 					)
 				}
-				className="flex cursor-pointer hover:opacity-70 w-full items-center gap-[12px]"
+				className="lg:flex hidden cursor-pointer hover:opacity-70 w-full items-center gap-[12px]"
 			>
 				<img
 					src={transaction.event_banner}
@@ -386,32 +366,24 @@ function RowCard({
 					)}
 				</div>
 			</div>
-			<div className="lg:w-full items-center flex lg:justify-between justify-end">
-				<div className="hidden lg:flex flex-col text-start">
-					<div className="text-[#181D27] font-[500]">
-						{transaction.bank_name}
-					</div>
-					<div className="text-[#535862]">
-						{transaction.bank_account_number}
+			<div className="w-full items-center flex lg:justify-between justify-end">
+				<div className=" w-full max-h-[40px] items-center gap-2 flex flex-row text-start">
+					<img
+						src={transaction.agent_profile_picture}
+						alt={transaction.agent_name}
+						width={40}
+						height={40}
+						className="rounded-full aspect-square object-cover"
+					/>
+					<div className="flex flex-col text-start">
+						<div className="text-[#181D27] font-[500]">
+							{transaction.agent_name}
+						</div>
+						<div className="text-[#535862] hidden lg:flex">
+							{transaction.agent_email}
+						</div>
 					</div>
 				</div>
-				{loading ? (
-					<Spin size="large" />
-				) : (
-					<button
-						onClick={handleDelete}
-						className=" hover:opacity-70 h-[20px] w-[20px] flex items-center gap-1 font-semibold  rounded-[8px]"
-						name="Delete"
-						title="Delete"
-					>
-						<Image
-							src="/assets/Icons/trash-01.svg"
-							alt="delete"
-							width={20}
-							height={20}
-						/>
-					</button>
-				)}
 			</div>
 		</div>
 	);
@@ -587,7 +559,9 @@ function SearchBar({
 function SortingBar() {
 	return (
 		<div className="w-full flex text-[12px] p-[12px] items-center text-[#717680] bg-[#FAFAFA]  justify-between">
-			<div className="w-full font-semibold ">Transaction</div>
+			<div className="w-full hidden lg:flex font-semibold ">
+				Transaction
+			</div>
 			<div className="w-full flex px-[12px] items-center  justify-start">
 				<div className="w-full font-semibold ">Amount</div>
 				<div className="w-full hidden lg:flex font-semibold ">Date</div>
@@ -595,10 +569,8 @@ function SortingBar() {
 					Event Status
 				</div>
 			</div>
-			<div className="w-full font-semibold hidden lg:flex">Account</div>
-			<div className="lg:w-full font-semibold lg:hidden text-end">
-				Action
-			</div>
+			<div className="w-full font-semibold hidden lg:flex">Agent</div>
+			<div className="w-full font-semibold lg:hidden">Agent</div>
 		</div>
 	);
 }

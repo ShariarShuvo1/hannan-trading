@@ -182,7 +182,7 @@ export default function StepFour({ user }: { user: User | null }) {
 		const data = await response.json();
 		if (response.status === 201) {
 			toast.success(data.message);
-			route.push("/login");
+			window.location.reload();
 		} else {
 			toast.error(data.message);
 		}
