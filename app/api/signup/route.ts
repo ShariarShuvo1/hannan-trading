@@ -39,7 +39,7 @@ export const POST = async (req: Request) => {
 			);
 		}
 
-		tempUser.password = "";
+		// tempUser.password = "";
 		tempUser.role = ["user"];
 
 		const fullname = tempUser.fullname;
