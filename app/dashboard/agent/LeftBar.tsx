@@ -224,11 +224,7 @@ export default function LeftPanel() {
 																	<div className="w-2 h-2 bg-white rounded-full"></div>
 																</div>
 															</div>
-															{(
-																user?.publicMetadata as {
-																	role: string[];
-																}
-															)?.role.includes(
+															{profile.role.includes(
 																"admin"
 															) && (
 																<div

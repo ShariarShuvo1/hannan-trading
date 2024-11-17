@@ -278,11 +278,7 @@ export default function LeftPanel() {
 																	<div className="w-2 h-2 bg-white rounded-full"></div>
 																</div>
 															</div>
-															{(
-																user?.publicMetadata as {
-																	role: string[];
-																}
-															)?.role.includes(
+															{profile.role.includes(
 																"admin"
 															) && (
 																<div className="flex px-4 py-2 cursor-default justify-between bg-slate-50 w-64">
