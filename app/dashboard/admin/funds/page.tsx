@@ -137,7 +137,7 @@ export default function Events() {
 			<div className="flex flex-col w-full lg:flex-row gap-4">
 				<div className="flex flex-col w-full border rounded-lg">
 					<div className="w-full py-[12px] px-[16px] bg-[#FDFDFD] rounded-lg text-[#181D27] text-[18px] font-semibold">
-						Total Funds
+						মোট ফান্ড
 					</div>
 					<div className="">
 						<div className="w-full px-[16px] rounded-t-lg border-t text-[#181D27] text-[30px] font-semibold">
@@ -158,7 +158,7 @@ export default function Events() {
 										labelStyle={{ color: "#6941C6" }}
 										formatter={(value: number) => [
 											`$${value}`,
-											"Total Amount",
+											"মোট পরিমাণ",
 										]}
 									/>
 									<Line
@@ -175,7 +175,7 @@ export default function Events() {
 				</div>
 				<div className="flex flex-col w-full border rounded-lg">
 					<div className="w-full py-[12px] px-[16px] bg-[#FDFDFD] rounded-lg text-[#181D27] text-[18px] font-semibold">
-						Ongoing Events
+						বর্তমান ইভেন্টগুলি
 					</div>
 					<div className="">
 						<div className="w-full rounded-t-lg items-center border-t flex gap-4  px-[16px]">
@@ -237,7 +237,7 @@ export default function Events() {
 										labelStyle={{ color: "#6941C6" }}
 										formatter={(value: number) => [
 											`${value}`,
-											"Total Event",
+											"মোট ইভেন্ট",
 										]}
 									/>
 									<Line
@@ -361,7 +361,7 @@ function Pagination({
 					height={20}
 					className="disabled:opacity-10"
 				/>
-				<span className="hidden lg:flex">Previous</span>
+				<span className="hidden lg:flex">পূর্ববর্তী</span>
 			</button>
 			<div className="text-[#414651] flex items-center gap-1">
 				{renderPageNumbers()}
@@ -373,7 +373,7 @@ function Pagination({
 				className={`text-[#414651] cursor-pointer disabled:cursor-default hover:bg-slate-50 disabled:hover:bg-white px-3 py-2 border disabled:border-[#E9EAEB] border-[#D5D7DA] flex gap-2 items-center disabled:text-[#A4A7AE] h-fit font-semibold rounded-lg`}
 				disabled={page === totalPages}
 			>
-				<span className="hidden lg:flex">Next</span>
+				<span className="hidden lg:flex">পরবর্তী</span>
 				<Image
 					src="/assets/Icons/arrow-right.svg"
 					alt="right"
@@ -423,10 +423,10 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Funds
+					ফান্ড ম্যানেজমেন্ট
 				</div>
 				<div className=" text-[#535862] text-[16px]">
-					Manage All the Funds You Have Received from Your Agents.
+					আপনার এজেন্টদের থেকে প্রাপ্ত সমস্ত তহবিল পরিচালনা করুন।
 				</div>
 			</div>
 		</div>
@@ -477,7 +477,7 @@ function SearchBar({
 		<div className="flex flex-col">
 			<div className="w-full px-4 pb-2 border-b mt-2 flex md:flex-row flex-col justify-between items-center gap-[20px]">
 				<div className="w-full font-semibold text-[#181D27] text-[18px]">
-					Agents
+					এজেন্ট
 				</div>
 				<button
 					onClick={handleExcelDownload}
@@ -490,7 +490,7 @@ function SearchBar({
 						height={20}
 						className=""
 					/>
-					<span>Download</span>
+					<span>ডাউনলোড</span>
 				</button>
 			</div>
 			<div className="w-full px-4 pb-2 border-b mt-2 flex md:flex-row flex-col justify-between items-center gap-[20px]">
@@ -499,19 +499,19 @@ function SearchBar({
 						onClick={() => setDays(365)}
 						className="px-[12px] py-[8px] w-full hover:bg-slate-50 text-nowrap h-full border-r"
 					>
-						12 months
+						12 মাস
 					</button>
 					<button
 						onClick={() => setDays(30)}
 						className="px-[12px] py-[8px] text-nowrap hover:bg-slate-50 w-full h-full border-r"
 					>
-						30 days
+						30 দিন
 					</button>
 					<button
 						onClick={() => setDays(7)}
 						className="px-[12px] py-[8px] w-full hover:bg-slate-50 h-full border-r"
 					>
-						7 days
+						7 দিন
 					</button>
 					<input
 						type="number"
@@ -532,7 +532,7 @@ function SearchBar({
 					/>
 					<input
 						type="text"
-						placeholder="Search"
+						placeholder="অনুসন্ধান করুন"
 						name="search"
 						value={search_text}
 						onChange={(e) => setSearchText(e.target.value)}
@@ -550,9 +550,9 @@ function SearchBar({
 function SortingBar() {
 	return (
 		<div className="w-full flex text-[12px] p-[12px] items-center text-[#717680] bg-[#FAFAFA]  justify-between">
-			<div className="w-full font-semibold ">Agents</div>
-			<div className="w-full hidden lg:flex font-semibold ">Email</div>
-			<div className="w-full font-semibold ">Amount</div>
+			<div className="w-full font-semibold ">এজেন্ট</div>
+			<div className="w-full hidden lg:flex font-semibold ">ইমেইল</div>
+			<div className="w-full font-semibold ">পরিমাণ</div>
 		</div>
 	);
 }

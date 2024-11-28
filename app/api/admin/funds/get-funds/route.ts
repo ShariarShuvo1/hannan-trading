@@ -8,6 +8,7 @@ interface ReturnBody {
 	_id: string;
 	profile_picture: string;
 	fullname: string;
+	phone: string;
 	email: string;
 	amount: number;
 }
@@ -32,34 +33,41 @@ export const POST = async (req: Request) => {
 
 		const { page = 1, search_text } = await req.json();
 
-		const query = search_text
-			? {
-					$or: [
-						{ fullname: { $regex: search_text, $options: "i" } },
-						{ email: { $regex: search_text, $options: "i" } },
-						{
-							"bank_info.bank_account_holder_name": {
-								$regex: search_text,
-								$options: "i",
-							},
+		let query = {};
+		let sort = {};
+
+		if (search_text) {
+			query = {
+				$or: [
+					{ fullname: { $regex: search_text, $options: "i" } },
+					{ phone: { $regex: search_text, $options: "i" } },
+					{ email: { $regex: search_text, $options: "i" } },
+					{
+						"bank_info.bank_account_holder_name": {
+							$regex: search_text,
+							$options: "i",
 						},
-						{
-							"bank_info.bank_name": {
-								$regex: search_text,
-								$options: "i",
-							},
+					},
+					{
+						"bank_info.bank_name": {
+							$regex: search_text,
+							$options: "i",
 						},
-						{
-							"bank_info.bank_district": {
-								$regex: search_text,
-								$options: "i",
-							},
+					},
+					{
+						"bank_info.bank_district": {
+							$regex: search_text,
+							$options: "i",
 						},
-					],
-			  }
-			: {};
+					},
+				],
+			};
+		} else {
+			sort = { admin_verified: 1 };
+		}
 
 		const users = await User.find(query)
+			.sort(sort)
 			.skip((page - 1) * 10)
 			.limit(10);
 
@@ -74,7 +82,9 @@ export const POST = async (req: Request) => {
 					_id: user._id.toString(),
 					profile_picture: user.profile_picture,
 					fullname: user.fullname,
+					phone: user.phone,
 					email: user.email,
+					admin_verified: user.admin_verified,
 					amount: totalAmount[0]?.totalAmount || 0,
 				};
 			})

@@ -21,6 +21,10 @@ const eventSchema = new mongoose.Schema({
 		type: Number,
 		required: true,
 	},
+	maximum_deposit: {
+		type: Number,
+		required: true,
+	},
 	duration: {
 		type: Number,
 		required: true,
@@ -29,6 +33,11 @@ const eventSchema = new mongoose.Schema({
 		type: Date,
 		required: true,
 		default: Date.now,
+	},
+	is_active: {
+		type: Boolean,
+		default: true,
+		required: true,
 	},
 });
 

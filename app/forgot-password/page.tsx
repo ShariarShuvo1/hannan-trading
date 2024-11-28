@@ -9,7 +9,7 @@ import { Spin } from "antd";
 import Link from "next/link";
 
 const ForgotPasswordPage: NextPage = () => {
-	const [email, setEmail] = useState("");
+	const [phone, setPhone] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [code, setCode] = useState("");
@@ -31,11 +31,26 @@ const ForgotPasswordPage: NextPage = () => {
 
 	async function create(e: React.FormEvent) {
 		e.preventDefault();
+		if (!phone) {
+			return toast.error("Please fill in all fields");
+		}
+		let tempPhone: string = phone;
+		if (!tempPhone.startsWith("+88") && !tempPhone.startsWith("01")) {
+			toast.error("Invalid phone number ss");
+			return;
+		}
+		if (tempPhone.startsWith("01")) {
+			tempPhone = "+88" + tempPhone;
+		}
+		if (tempPhone.length !== 14) {
+			toast.error("Invalid phone number");
+			return;
+		}
 		setLoading(true);
 		await signIn
 			?.create({
-				strategy: "reset_password_email_code",
-				identifier: email,
+				strategy: "reset_password_phone_code",
+				identifier: tempPhone,
 			})
 			.then((_) => {
 				setSuccessfulCreation(true);
@@ -51,7 +66,7 @@ const ForgotPasswordPage: NextPage = () => {
 		setLoading(true);
 		await signIn
 			?.attemptFirstFactor({
-				strategy: "reset_password_email_code",
+				strategy: "reset_password_phone_code",
 				code,
 				password,
 			})
@@ -109,15 +124,15 @@ const ForgotPasswordPage: NextPage = () => {
 					{!successfulCreation && (
 						<div>
 							<label className="block text-sm font-medium text-gray-700">
-								Email
+								Phone
 							</label>
 							<input
-								type="email"
-								name="email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
+								type="phone"
+								name="phone"
+								value={phone}
+								onChange={(e) => setPhone(e.target.value)}
 								className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
-								placeholder="Enter your email"
+								placeholder="Enter your phone"
 								required
 							/>
 						</div>
@@ -157,7 +172,7 @@ const ForgotPasswordPage: NextPage = () => {
 								<label className="block text-[#414651] font-[500] text-sm">
 									Enter the code sent to your{" "}
 									<span className="text-orange-500">
-										email
+										phone
 									</span>
 								</label>
 								<input

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Spin } from "antd";
+import { Check, Hourglass } from "lucide-react";
 import {
 	LineChart,
 	Line,
@@ -16,16 +17,54 @@ import {
 	CartesianGrid,
 } from "recharts";
 
+interface Investor {
+	name: string;
+	nid: string;
+	nominee_name: string;
+	nominee_nid: string;
+	payment_method: string;
+	amount: string;
+	percentage: string;
+}
+
+interface Event {
+	_id: string;
+	name: string;
+	banner: string;
+}
+
+interface User {
+	_id: string;
+	fullname: string;
+	email: string;
+	phone: string;
+}
+
 interface Transaction {
-	event_id: string;
-	event_name: string;
-	event_banner: string;
-	event_status: boolean;
+	_id: string;
 	amount: number;
-	bank_account_number: string;
-	bank_name: string;
-	transaction_created_at: Date;
-	transaction_id: string;
+	created_at: Date;
+	user: User;
+	picture: string;
+	event: Event;
+	agent_bank_info: {
+		bank_account_number: string;
+		bank_name: string;
+		bank_account_holder_name: string;
+		bank_district: string;
+		bank_branch: string;
+		routing_number: string;
+	};
+	admin_bank_info: {
+		bank_account_number: string;
+		bank_name: string;
+		bank_account_holder_name: string;
+		bank_district: string;
+		bank_branch: string;
+		routing_number: string;
+	};
+	investors: Investor[];
+	is_approved: boolean;
 }
 
 export default function Events() {
@@ -41,6 +80,7 @@ export default function Events() {
 		{ date: string; totalAmount: number }[]
 	>([]);
 	const [days, setDays] = useState(7);
+	const [itemsPerPage, setItemsPerPage] = useState(10);
 
 	useEffect(() => {
 		if (transactions.length <= 0) return;
@@ -48,7 +88,7 @@ export default function Events() {
 		const dateAmountMap = transactions.reduce<Record<string, number>>(
 			(acc, transaction) => {
 				const dateKey = new Date(
-					transaction.transaction_created_at
+					transaction.created_at
 				).toLocaleDateString("en-US", {
 					month: "short",
 					day: "numeric",
@@ -76,7 +116,7 @@ export default function Events() {
 		);
 	}, [transactions]);
 
-	const fetchEvents = async () => {
+	const fetchInvestment = async () => {
 		setLoading(true);
 		const response = await fetch("/api/agent/get-investment", {
 			method: "POST",
@@ -86,6 +126,7 @@ export default function Events() {
 			body: JSON.stringify({
 				page,
 				days,
+				itemsPerPage,
 				search_text,
 			}),
 		});
@@ -100,8 +141,8 @@ export default function Events() {
 	};
 
 	useEffect(() => {
-		fetchEvents();
-	}, [page, days, search_trigger]);
+		fetchInvestment();
+	}, [page, days, search_trigger, itemsPerPage]);
 
 	async function handleSearch() {
 		setPage(1);
@@ -114,7 +155,7 @@ export default function Events() {
 
 			<div className="border p-4 rounded-lg">
 				<div className="w-full text-[#181D27] text-[18px] font-semibold">
-					Total Invested
+					মোট বিনিয়োগ
 				</div>
 				<div className="w-full text-[#181D27] text-[30px] font-semibold">
 					৳{total_invested}
@@ -145,8 +186,8 @@ export default function Events() {
 								}}
 								labelStyle={{ color: "#6941C6" }}
 								formatter={(value: number) => [
-									`$${value}`,
-									"Total Amount",
+									`৳${value}`,
+									"মোট পরিমাণ",
 								]}
 							/>
 							<Line
@@ -163,6 +204,8 @@ export default function Events() {
 			<div className="border rounded-lg w-full pb-4 flex flex-col gap-[24px]">
 				<div>
 					<SearchBar
+						itemsPerPage={itemsPerPage}
+						setItemsPerPage={setItemsPerPage}
 						search_text={search_text}
 						setSearchText={setSearchText}
 						handleSearch={handleSearch}
@@ -271,7 +314,7 @@ function Pagination({
 					height={20}
 					className="disabled:opacity-10"
 				/>
-				<span className="hidden lg:flex">Previous</span>
+				<span className="hidden lg:flex">পূর্ববর্তী</span>
 			</button>
 			<div className="text-[#414651] flex items-center gap-1">
 				{renderPageNumbers()}
@@ -283,7 +326,7 @@ function Pagination({
 				className={`text-[#414651] cursor-pointer disabled:cursor-default hover:bg-slate-50 disabled:hover:bg-white px-3 py-2 border disabled:border-[#E9EAEB] border-[#D5D7DA] flex gap-2 items-center disabled:text-[#A4A7AE] h-fit font-semibold rounded-lg`}
 				disabled={page === totalPages}
 			>
-				<span className="hidden lg:flex">Next</span>
+				<span className="hidden lg:flex">পরবর্তী</span>
 				<Image
 					src="/assets/Icons/arrow-right.svg"
 					alt="right"
@@ -318,7 +361,7 @@ function RowCard({
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				transId: transaction.transaction_id,
+				transId: transaction._id,
 			}),
 		});
 		const data = await response.json();
@@ -335,122 +378,136 @@ function RowCard({
 
 	return (
 		<div
-			className={`w-full flex p-[12px]  items-center border-b justify-between ${
+			className={`w-full grid lg:grid-cols-8 space-y-4 lg:space-y-0 p-[12px] items-center border-b justify-between ${
 				index % 2 === 0 ? "bg-white" : "bg-[#FAFAFA]"
 			}`}
 		>
 			<div
 				onClick={() =>
 					router.push(
-						`/dashboard/agent/events/${transaction.event_id}`
+						`/dashboard/agent/events/${transaction.event._id}`
 					)
 				}
 				className="flex cursor-pointer hover:opacity-70 w-full items-center gap-[12px]"
 			>
 				<img
-					src={transaction.event_banner}
-					alt={transaction.event_name}
+					src={transaction.event.banner}
+					alt={transaction.event.name}
 					width={40}
 					height={40}
 					className="rounded-full aspect-square object-cover"
 				/>
 				<div className="text-[#181D27] text-wrap font-[500] text-[14px]">
 					<span className="lg:hidden">
-						{transaction.event_name.slice(0, 10) +
-							(transaction.event_name.length > 10 ? "..." : "")}
+						{transaction.event.name.slice(0, 10) +
+							(transaction.event.name.length > 10 ? "..." : "")}
 					</span>
 					<span className="hidden lg:flex">
-						{transaction.event_name}
+						{transaction.event.name}
 					</span>
 				</div>
 			</div>
-
-			<div className="w-full flex px-[12px] items-center  justify-start">
-				<div className="flex text-[#535862] text-[14px] items-center justify-between w-full ">
-					৳{transaction.amount}
-				</div>
-				<div className="lg:flex hidden text-[#535862] text-[14px] items-center justify-between w-full ">
-					{new Date(
-						transaction.transaction_created_at
-					).toLocaleDateString("en-US", {
-						month: "short",
-						day: "numeric",
-						year: "numeric",
-					})}
-				</div>
-				<div className="lg:flex hidden text-[#535862] text-[14px] items-center justify-between w-full ">
-					{transaction.event_status ? (
-						<Badge text="Event Ongoing" color="Ongoing" />
-					) : (
-						<Badge text="Event Completed" color="Completed" />
-					)}
-				</div>
+			<div className="text-[#717680] w-full">৳{transaction.amount}</div>
+			<div className="text-[#717680] w-full">
+				{new Date(transaction.created_at).toLocaleDateString("en-US", {
+					month: "short",
+					day: "numeric",
+					year: "numeric",
+				})}
 			</div>
-			<div className="lg:w-full items-center flex lg:justify-between justify-end">
-				<div className="hidden lg:flex flex-col text-start">
-					<div className="text-[#181D27] font-[500]">
-						{transaction.bank_name}
-					</div>
-					<div className="text-[#535862]">
-						{transaction.bank_account_number}
-					</div>
+			<div className="text-[#717680] w-full flex flex-col">
+				<div className="font-semibold text-black">
+					{transaction.admin_bank_info.bank_account_number}
 				</div>
-				{loading ? (
-					<Spin size="large" />
-				) : (
-					<button
-						onClick={handleDelete}
-						className=" hover:opacity-70 h-[20px] w-[20px] flex items-center gap-1 font-semibold  rounded-[8px]"
-						name="Delete"
-						title="Delete"
-					>
-						<Image
-							src="/assets/Icons/trash-01.svg"
-							alt="delete"
-							width={20}
-							height={20}
-						/>
-					</button>
-				)}
+				<div>{transaction.admin_bank_info.bank_name}</div>
 			</div>
+			<div className="text-[#717680] w-full flex flex-col">
+				<div className="font-semibold text-black">
+					{transaction.agent_bank_info.bank_account_number}
+				</div>
+				<div>{transaction.agent_bank_info.bank_name}</div>
+			</div>
+			<div className="text-[#717680] w-full flex gap-2">
+				<Image
+					src="/assets/Icons/users-01.svg"
+					alt="eye"
+					width={20}
+					height={20}
+				/>
+				<div>{transaction.investors.length} জন</div>
+			</div>
+			<ImageModal transaction={transaction} />
+			{transaction.is_approved ? (
+				<div className="text-green-500 w-full flex items-center gap-2">
+					<Check size={20} />
+					<div>অনুমোদিত</div>
+				</div>
+			) : (
+				<div className="text-yellow-500 w-full flex items-center gap-2">
+					<Hourglass size={20} />
+					<div>অপেক্ষাধীন</div>
+				</div>
+			)}
 		</div>
 	);
 }
 
-function Badge({ text, color }: { text: string; color?: string }) {
+const ImageModal = ({ transaction }: { transaction: { picture: string } }) => {
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const openModal = () => setIsModalOpen(true);
+	const closeModal = () => setIsModalOpen(false);
+
 	return (
-		<div
-			className={`rounded-full px-[8px] border flex gap-[4px] items-center px[6px] py-[2px] text-[#414651] font-[500] ${
-				color === "Ongoing"
-					? `bg-[#ECFDF3] border-[#ABEFC6]`
-					: "bg-[#EFF8FF] border-[#B2DDFF]"
-			} text-[12px]`}
-		>
-			<div
-				className={`h-[8px] w-[8px] ${
-					color === "Ongoing" ? `bg-[#17B26A]` : "bg-[#2E90FA]"
-				} rounded-full`}
-			></div>
-			<div
-				className={`${
-					color === "Ongoing" ? `text-[#067647]` : "text-[#175CD3]"
-				}`}
-			>
-				{text}
-			</div>
+		<div className="w-full">
+			<img
+				src={transaction.picture}
+				alt="receipt"
+				className="max-h-[50px] border-2 rounded-lg border-black max-w-[80px] w-full h-full object-fill cursor-pointer"
+				onClick={openModal}
+			/>
+
+			{isModalOpen && (
+				<div
+					className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+					onClick={closeModal}
+				>
+					<img
+						src={transaction.picture}
+						alt="receipt"
+						className="max-w-[1000px] max-h-[1000px] w-auto h-auto object-contain"
+						onClick={(e) => e.stopPropagation()}
+					/>
+				</div>
+			)}
 		</div>
 	);
-}
+};
 
 function TopTitle({ router }: { router: AppRouterInstance }) {
 	return (
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Welcome back
+					স্বাগতম এজেন্ট
 				</div>
 			</div>
 			<div className="flex gap-[12px] flex-col md:flex-row">
+				<button
+					onClick={() =>
+						router.push(`/dashboard/agent/home/add-bank`)
+					}
+					className="border-[1px] h-fit w-full lg:w-fit font-semibold hover:bg-slate-50 justify-center items-center flex gap-1 border-[#D5D7DA] rounded-[8px] py-[10px] px-[14px] "
+				>
+					<Image
+						src="/assets/Icons/wallet-02.svg"
+						alt="search"
+						width={20}
+						height={20}
+						className=""
+					/>
+					<span>নতুন ব্যাংক অ্যাকাউন্ট যোগ করুন</span>
+				</button>
 				<button
 					onClick={() => router.push("/dashboard/agent/events")}
 					className="bg-[#7F56D9] hover:bg-[#764fc9] flex items-center gap-1 text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
@@ -461,7 +518,7 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 						width={20}
 						height={20}
 					/>
-					Latest Events
+					নতুন ইভেন্টগুলি দেখুন
 				</button>
 			</div>
 		</div>
@@ -469,6 +526,8 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 }
 
 function SearchBar({
+	itemsPerPage,
+	setItemsPerPage,
 	search_text,
 	setSearchText,
 	handleSearch,
@@ -476,6 +535,8 @@ function SearchBar({
 	days,
 	setDays,
 }: {
+	itemsPerPage: number;
+	setItemsPerPage: (itemsPerPage: number) => void;
 	search_text: string;
 	setSearchText: (text: string) => void;
 	handleSearch: () => void;
@@ -484,37 +545,66 @@ function SearchBar({
 	setDays: (days: number) => void;
 }) {
 	async function handleExcelDownload() {
-		const data = transactions.map((transaction) => ({
-			"Event Name": transaction.event_name,
-			"Event Status": transaction.event_status ? "Active" : "Inactive",
-			Amount: transaction.amount,
-			"Bank Account Number": transaction.bank_account_number,
-			"Bank Name": transaction.bank_name,
-		}));
+		const data: { [key: string]: string | number }[] = [];
 
-		const worksheet = XLSX.utils.json_to_sheet(data);
-		const workbook = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+		transactions.forEach((transaction) => {
+			data.push({
+				ইভেন্ট: transaction.event.name,
+				পরিমাণ: transaction.amount,
+				তারিখ: new Date(transaction.created_at).toLocaleDateString(
+					"en-US",
+					{
+						month: "short",
+						day: "numeric",
+						year: "numeric",
+					}
+				),
+				"প্রাপকের ব্যাংক নাম": transaction.admin_bank_info.bank_name,
+				"প্রাপকের অ্যাকাউন্ট নম্বর":
+					transaction.admin_bank_info.bank_account_number,
+				"প্রাপকের অ্যাকাউন্ট হোল্ডার নাম":
+					transaction.admin_bank_info.bank_account_holder_name,
+				"প্রাপকের জেলা": transaction.admin_bank_info.bank_district,
+				"প্রাপকের শাখা": transaction.admin_bank_info.bank_branch,
+				"প্রাপকের রাউটিং নম্বর":
+					transaction.admin_bank_info.routing_number,
+				"প্রেরকের ব্যাংক নাম": transaction.agent_bank_info.bank_name,
+				"প্রেরকের অ্যাকাউন্ট নম্বর":
+					transaction.agent_bank_info.bank_account_number,
+				"প্রেরকের অ্যাকাউন্ট হোল্ডার নাম":
+					transaction.agent_bank_info.bank_account_holder_name,
+				"প্রেরকের জেলা": transaction.agent_bank_info.bank_district,
+				"প্রেরকের শাখা": transaction.agent_bank_info.bank_branch,
+				"প্রেরকের রাউটিং নম্বর":
+					transaction.agent_bank_info.routing_number,
+				স্ট্যাটাস: transaction.is_approved ? "অনুমোদিত" : "অপেক্ষাধীন",
+			});
 
-		const excelBuffer = XLSX.write(workbook, {
-			bookType: "xlsx",
-			type: "array",
+			transaction.investors.forEach((investor, index) => {
+				data.push({
+					ইভেন্ট: index === 0 ? "→ কো-ইনভেস্টর" : "",
+					"ইনভেস্টর নাম": investor.name,
+					"ইনভেস্টর NID": investor.nid,
+					"নমিনি নাম": investor.nominee_name,
+					"নমিনি NID": investor.nominee_nid,
+					"পেমেন্ট পদ্ধতি": investor.payment_method,
+					পরিমাণ: investor.amount,
+					"শেয়ার শতাংশ": investor.percentage,
+				});
+			});
 		});
-		const blob = new Blob([excelBuffer], {
-			type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		});
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = `transactions_${new Date().toISOString()}.xlsx`;
-		a.click();
-		window.URL.revokeObjectURL(url);
+
+		const ws = XLSX.utils.json_to_sheet(data);
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+		XLSX.writeFile(wb, "transactions_with_investors.xlsx");
 	}
+
 	return (
 		<div className="flex flex-col">
 			<div className="w-full px-4 pb-2 border-b mt-2 flex md:flex-row flex-col justify-between items-center gap-[20px]">
 				<div className="w-full font-semibold text-[#181D27] text-[18px]">
-					Recent Investments
+					সাম্প্রতিক বিনিয়োগ
 				</div>
 				<button
 					onClick={handleExcelDownload}
@@ -527,7 +617,7 @@ function SearchBar({
 						height={20}
 						className=""
 					/>
-					<span>Download</span>
+					<span>ডাউনলোড</span>
 				</button>
 			</div>
 			<div className="w-full px-4 pb-2 border-b mt-2 flex md:flex-row flex-col justify-between items-center gap-[20px]">
@@ -536,19 +626,19 @@ function SearchBar({
 						onClick={() => setDays(365)}
 						className="px-[12px] py-[8px] w-full hover:bg-slate-50 text-nowrap h-full border-r"
 					>
-						12 months
+						12 মাস
 					</button>
 					<button
 						onClick={() => setDays(30)}
 						className="px-[12px] py-[8px] text-nowrap hover:bg-slate-50 w-full h-full border-r"
 					>
-						30 days
+						30 দিন
 					</button>
 					<button
 						onClick={() => setDays(7)}
 						className="px-[12px] py-[8px] w-full hover:bg-slate-50 h-full border-r"
 					>
-						7 days
+						7 দিন
 					</button>
 					<input
 						type="number"
@@ -559,7 +649,23 @@ function SearchBar({
 						className="h-full px-[12px] py-[8px] hover:bg-slate-50 rounded-r-lg text-center w-[80px]"
 					/>
 				</div>
-				<div className="relative ">
+				<div className="border w-full lg:w-fit justify-center flex gap-0 items-center rounded-lg">
+					<input
+						type="number"
+						placeholder="Custom"
+						name="days"
+						value={itemsPerPage}
+						onChange={(e) =>
+							setItemsPerPage(parseInt(e.target.value))
+						}
+						min={1}
+						className="h-full w-full pe-1 border-r bg-slate-100 hover:bg-slate-200 py-[7px] font-bold outline-none rounded-l-lg text-center lg:w-[60px]"
+					/>
+					<div className="h-full w-full lg:w-fit px-1 py-[6px] select-none">
+						টি এন্ট্রি দেখুন
+					</div>
+				</div>
+				<div className="relative w-full lg:w-fit">
 					<Image
 						src="/assets/Icons/search-lg.svg"
 						alt="search"
@@ -569,7 +675,7 @@ function SearchBar({
 					/>
 					<input
 						type="text"
-						placeholder="Search"
+						placeholder="অনুসন্ধান করুন"
 						name="search"
 						value={search_text}
 						onChange={(e) => setSearchText(e.target.value)}
@@ -586,19 +692,15 @@ function SearchBar({
 
 function SortingBar() {
 	return (
-		<div className="w-full flex text-[12px] p-[12px] items-center text-[#717680] bg-[#FAFAFA]  justify-between">
-			<div className="w-full font-semibold ">Transaction</div>
-			<div className="w-full flex px-[12px] items-center  justify-start">
-				<div className="w-full font-semibold ">Amount</div>
-				<div className="w-full hidden lg:flex font-semibold ">Date</div>
-				<div className="w-full hidden lg:flex font-semibold ">
-					Event Status
-				</div>
-			</div>
-			<div className="w-full font-semibold hidden lg:flex">Account</div>
-			<div className="lg:w-full font-semibold lg:hidden text-end">
-				Action
-			</div>
+		<div className="w-full text-[12px] font-semibold text-nowrap p-[12px] text-[#717680] bg-[#FAFAFA] hidden lg:grid lg:grid-cols-8 gap-2">
+			<div className="w-full">ইভেন্ট</div>
+			<div className="w-full">পরিমাণ</div>
+			<div className="w-full">তারিখ</div>
+			<div className="w-full">প্রাপকের ব্যাংক</div>
+			<div className="w-full">প্রেরকের ব্যাংক</div>
+			<div className="w-full">কো-ইনভেস্টর</div>
+			<div className="w-full">রিসিপ্ট</div>
+			<div className="w-full">স্ট্যাটাস</div>
 		</div>
 	);
 }

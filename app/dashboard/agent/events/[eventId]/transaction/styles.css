@@ -1,0 +1,24 @@
+.custom-scrollbar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+	background: white; /* Track color */
+	border-radius: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+	background: black; /* Thumb color */
+	border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: black; /* Thumb color on hover */
+	border-radius: 10%;
+}
+
+/* Styling for Firefox */
+.custom-scrollbar {
+	scrollbar-width: thin;
+	scrollbar-color: #636363 transparent;
+}

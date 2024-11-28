@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import { currentUser } from "@clerk/nextjs/server";
-import Transaction from "@/models/Transaction";
+import User from "@/models/User";
 
-export const POST = async (req: Request) => {
+export const GET = async (req: Request) => {
 	try {
 		await connectToDB();
 
@@ -25,30 +25,11 @@ export const POST = async (req: Request) => {
 			);
 		}
 
-		const { transId } = await req.json();
+		const newUser = await User.findOne({ role: { $in: ["admin"] } });
 
-		if (!transId) {
-			return NextResponse.json(
-				{ message: "Transaction ID is required" },
-				{ status: 400 }
-			);
-		}
+		const transactions = newUser.bank_info;
 
-		const transaction = await Transaction.findById(transId);
-
-		if (!transaction) {
-			return NextResponse.json(
-				{ message: "Transaction not found" },
-				{ status: 404 }
-			);
-		}
-
-		await Transaction.findByIdAndDelete(transId);
-
-		return NextResponse.json(
-			{ message: "Transaction deleted successfully" },
-			{ status: 200 }
-		);
+		return NextResponse.json(transactions, { status: 200 });
 	} catch (err) {
 		return NextResponse.json(
 			{ message: "Internal server error" },

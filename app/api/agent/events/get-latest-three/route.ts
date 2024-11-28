@@ -25,7 +25,7 @@ export const GET = async (req: Request) => {
 			);
 		}
 
-		const latestThreeEvents = await Event.find()
+		const latestThreeEvents = await Event.find({ is_active: true })
 			.sort({ start_date: -1 })
 			.limit(3);
 

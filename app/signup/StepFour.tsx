@@ -160,6 +160,7 @@ export default function StepFour({ user }: { user: User | null }) {
 			const res = await signUp.create({
 				emailAddress: tempUser.email,
 				password: tempUser.password,
+				phoneNumber: tempUser.phone,
 			});
 			clerkId = res.createdUserId;
 		} catch (error) {

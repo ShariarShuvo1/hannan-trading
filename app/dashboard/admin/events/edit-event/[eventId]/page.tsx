@@ -13,6 +13,7 @@ export default function CreateEvent() {
 	const [bannerUrl, setBannerUrl] = useState<string | undefined>(undefined);
 	const [roi, setRoi] = useState("");
 	const [minimum_deposit, setMinimumDeposit] = useState("");
+	const [maximum_deposit, setMaximumDeposit] = useState("");
 	const [duration, setDuration] = useState("");
 	const [isDragging, setIsDragging] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +38,7 @@ export default function CreateEvent() {
 				setRoi(data.roi);
 				setMinimumDeposit(data.minimum_deposit);
 				setDuration(data.duration);
+				setMaximumDeposit(data.maximum_deposit);
 			} else {
 				toast.error(data.message);
 			}
@@ -108,7 +110,14 @@ export default function CreateEvent() {
 	}
 
 	async function handleSubmit() {
-		if (!name || !tagline || !roi || !minimum_deposit || !duration) {
+		if (
+			!name ||
+			!tagline ||
+			!roi ||
+			!minimum_deposit ||
+			!maximum_deposit ||
+			!duration
+		) {
 			toast.error("Please fill all the fields");
 			return;
 		}
@@ -131,6 +140,7 @@ export default function CreateEvent() {
 				banner: bannerUrl,
 				roi,
 				minimum_deposit,
+				maximum_deposit,
 				duration,
 				eventId,
 			}),
@@ -146,6 +156,7 @@ export default function CreateEvent() {
 			setRoi("");
 			setMinimumDeposit("");
 			setDuration("");
+			setMaximumDeposit("");
 			router.push("/dashboard/admin/events");
 		} else {
 			toast.error(data.message);
@@ -176,19 +187,19 @@ export default function CreateEvent() {
 			<div className="w-full flex flex-col gap-[20px]">
 				<div className="border-b pb-[20px]">
 					<div className="font-semibold text-[#181D27] text-[18px]">
-						Update This Event
+						ইভেন্ট আপডেট করুন!
 					</div>
 					<div className="text-[#535862]">
-						Update event for your agents!
+						আপনার ইভেন্ট এর তথ্য আপডেট করুন।
 					</div>
 				</div>
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Event Name *
+							ইভেন্টের নাম *
 						</div>
 						<div className="text-[#535862]">
-							This will be displayed on event card.
+							ইভেন্ট কার্ডে দেখানো হবে।
 						</div>
 					</div>
 					<input
@@ -202,10 +213,10 @@ export default function CreateEvent() {
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Tagline *
+							ট্যাগলাইন *
 						</div>
 						<div className="text-[#535862]">
-							A quick description of the event
+							সংক্ষেপে ইভেন্ট বিবরণ
 						</div>
 					</div>
 					<textarea
@@ -219,10 +230,11 @@ export default function CreateEvent() {
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Event banner *
+							ইভেন্ট ব্যানার *
 						</div>
 						<div className="text-[#535862]">
-							Upload your event banner and attract more agents.
+							আরো এজেন্ট আকর্ষণ করতে আপনার ইভেন্ট ব্যানার আপলোড
+							করুন।
 						</div>
 					</div>
 					{bannerUrl ? (
@@ -279,7 +291,7 @@ export default function CreateEvent() {
 									or drag and drop
 								</p>
 								<p className="text-center">
-									SVG, PNG, JPG or GIF (max. 800&times;400px)
+									SVG, PNG, JPG or GIF
 								</p>
 							</div>
 						</div>
@@ -298,12 +310,12 @@ export default function CreateEvent() {
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Investment Factors
+							ইনভেস্টমেন্ট ফ্যাক্টর
 						</div>
 					</div>
 					<div className="flex flex-col max-w-[512px] w-full text-[16px] gap-[16px]">
 						<div className="flex items-center">
-							<div className="px-[12px] max-w-[120px] w-full rounded-l-lg border py-[10px] ">
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg border py-[10px] ">
 								ROI
 							</div>
 							<input
@@ -316,8 +328,8 @@ export default function CreateEvent() {
 							/>
 						</div>
 						<div className="flex items-center">
-							<div className="px-[12px] max-w-[120px] w-full rounded-l-lg text-nowrap border py-[10px] ">
-								Min. Deposit
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg text-nowrap border py-[10px] ">
+								সর্বনিম্ন আমানত
 							</div>
 							<input
 								type="number"
@@ -330,8 +342,22 @@ export default function CreateEvent() {
 							/>
 						</div>
 						<div className="flex items-center">
-							<div className="px-[12px] max-w-[120px] w-full rounded-l-lg border py-[10px] ">
-								Duration
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg text-nowrap border py-[10px] ">
+								সর্বোচ্চ আমানত
+							</div>
+							<input
+								type="number"
+								placeholder="সর্বোচ্চ আমানত লিখুন"
+								value={maximum_deposit}
+								onChange={(e) =>
+									setMaximumDeposit(e.target.value)
+								}
+								className="border-y border-r border-[#E0E0E0] rounded-r-lg px-[12px] py-[10px] max-w-[512px] w-full"
+							/>
+						</div>
+						<div className="flex items-center">
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg border py-[10px] ">
+								স্থায়িত্ব
 							</div>
 							<input
 								type="number"
@@ -344,7 +370,7 @@ export default function CreateEvent() {
 					</div>
 				</div>
 			</div>
-			<div className="w-full justify-end flex gap-4">
+			<div className="w-full justify-end flex gap-4 pb-4">
 				{loading ? (
 					<Spin />
 				) : (

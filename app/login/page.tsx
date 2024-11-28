@@ -8,7 +8,7 @@ import { useSignIn, useAuth } from "@clerk/nextjs";
 
 export default function Auth() {
 	const [currentTab, _setCurrentTab] = useState<"login" | "signup">("login");
-	const [email, setEmail] = useState("");
+	const [phone, setPhone] = useState("");
 	const [password, setPassword] = useState("");
 	const route = useRouter();
 	const { signIn, isLoaded } = useSignIn();
@@ -22,13 +22,25 @@ export default function Auth() {
 
 	async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		if (!email || !password) {
+		if (!phone || !password) {
 			return toast.error("Please fill in all fields");
+		}
+		let tempPhone: string = phone;
+		if (!tempPhone.startsWith("+88") && !tempPhone.startsWith("01")) {
+			toast.error("Invalid phone number ss");
+			return;
+		}
+		if (tempPhone.startsWith("01")) {
+			tempPhone = "+88" + tempPhone;
+		}
+		if (tempPhone.length !== 14) {
+			toast.error("Invalid phone number");
+			return;
 		}
 		if (!isLoaded) return;
 		try {
 			const result = await signIn.create({
-				identifier: email,
+				identifier: tempPhone,
 				password,
 			});
 			if (result.status === "complete") {
@@ -73,14 +85,14 @@ export default function Auth() {
 					>
 						<div>
 							<label className="block text-[#414651] font-[500] text-sm">
-								Email
+								Phone
 							</label>
 							<input
-								type="email"
-								placeholder="Enter your email"
+								type="phone"
+								placeholder="Enter your phone"
 								className="w-full px-[14px] py-[10px] text-[16px] border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
+								value={phone}
+								onChange={(e) => setPhone(e.target.value)}
 							/>
 						</div>
 						<div>

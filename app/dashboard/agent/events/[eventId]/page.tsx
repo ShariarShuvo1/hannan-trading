@@ -52,7 +52,7 @@ export default function Page() {
 				const value =
 					minimumDeposit * (roi / 100) * i + +minimumDeposit;
 				data.push({
-					name: `Month ${i}`,
+					name: `মাস ${i}`,
 					value: parseFloat(value.toFixed(2)),
 				});
 			}
@@ -69,11 +69,11 @@ export default function Page() {
 		if (!event) return [];
 
 		return [
-			{ name: "Start", value: 0 },
-			{ name: "Step 1", value: event?.roi * 0.25 },
-			{ name: "Step 2", value: event?.roi * 0.5 },
-			{ name: "Step 3", value: event?.roi * 0.75 },
-			{ name: "End", value: event?.roi },
+			{ name: "শুরু", value: 0 },
+			{ name: "ধাপ ১", value: event?.roi * 0.25 },
+			{ name: "ধাপ ২", value: event?.roi * 0.5 },
+			{ name: "ধাপ ৩", value: event?.roi * 0.75 },
+			{ name: "শেষ", value: event?.roi },
 		];
 	}
 
@@ -133,11 +133,11 @@ export default function Page() {
 							<div className="w-full flex flex-col lg:flex-row justify-between pe-4 ">
 								<div>
 									<h1 className="text-[24px] font-semibold text-[#181D27]">
-										{event?.name || "Event Name"}
+										{event?.name || "ইভেন্টের নাম"}
 									</h1>
 									{event && (
 										<p className="text-[16px] text-[#535862]">
-											Started on{" "}
+											চালু হয়েছে{" "}
 											{new Date(
 												event.start_date
 											).toLocaleDateString()}
@@ -153,24 +153,22 @@ export default function Page() {
 										}
 										className="lg:ml-auto w-fit mt-4 lg:mt-0 px-4 py-2 h-fit bg-[#7F56D9] text-white rounded-lg font-semibold hover:bg-[#724dc2]"
 									>
-										Invest Now
+										ইনভেস্ট করুন
 									</button>
 								)}
 							</div>
 						</div>
 					</div>
 
-					{/* About Section */}
 					<div className="px-4 py-6  border-t lg:border-none mt-[200px] lg:mt-[130px]">
 						<h2 className="text-lg font-[500] text-[#181D27]">
-							About Event
+							ইভেন্টের বিবরণ
 						</h2>
 						<p className="text-[#535862] text-[16px]">
 							{event?.tagline}
 						</p>
 					</div>
 
-					{/* Statistics Section */}
 					<div className="flex flex-col lg:flex-row gap-4 h-fit py-4 px-4">
 						<div className="bg-[#FDFDFD] rounded-lg border border-[#E9EAEB] w-full">
 							<h3 className="text-sm font-semibold text-gray-700 p-4">
@@ -199,10 +197,11 @@ export default function Page() {
 
 						<div className="bg-[#FDFDFD] rounded-lg border border-[#E9EAEB] w-full">
 							<h3 className="text-sm font-semibold text-gray-700 p-4">
-								Expected Return{" "}
+								প্রত্যাশিত ফেরত{" "}
 								<span className="text-[#535862] font-[500] text-[12px]">
-									[Min. ৳{event.minimum_deposit} Investment
-									for {event.duration} Months]
+									[সর্বনিম্ন ৳{event.minimum_deposit} টাকা{" "}
+									{` `}
+									{event.duration} মাসের বিনিয়োগে]
 								</span>
 							</h3>
 							<div className=" bg-white px-4 w-full  border-t border-t-[#E9EAEB] rounded-lg">
@@ -230,7 +229,7 @@ export default function Page() {
 												alt="Event"
 											/>
 											<span>
-												{event.duration} Months Duration
+												{event.duration} মাস সময়
 											</span>
 										</span>
 									</div>

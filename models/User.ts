@@ -95,6 +95,11 @@ const userSchema = new mongoose.Schema({
 		enum: ["user", "admin"],
 		default: ["user"],
 	},
+	admin_verified: {
+		type: Boolean,
+		required: false,
+		default: false,
+	},
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

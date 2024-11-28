@@ -19,6 +19,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
 	title: "Hannan Trading",
 	description: "Hannan Trading",
+	icons: {
+		icon: "/assets/logo-short.png",
+	},
 };
 
 export default function RootLayout({

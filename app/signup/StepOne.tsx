@@ -51,7 +51,19 @@ export default function StepOne({
 		tempUser.fathername = formData.fatherName;
 		tempUser.mothername = formData.motherName;
 		tempUser.email = formData.email;
-		tempUser.phone = formData.phoneNumber;
+		let phone: string = formData.phoneNumber;
+		if (!phone.startsWith("+88") && !phone.startsWith("01")) {
+			toast.error("Invalid phone number ss");
+			return;
+		}
+		if (phone.startsWith("01")) {
+			phone = "+88" + phone;
+		}
+		if (phone.length !== 14) {
+			toast.error("Invalid phone number");
+			return;
+		}
+		tempUser.phone = phone;
 		tempUser.house_no = formData.houseNumber;
 		tempUser.village = formData.village;
 		tempUser.po = formData.po;
@@ -195,7 +207,7 @@ export default function StepOne({
 							value={formData.po}
 							onChange={handleChange}
 							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
-							placeholder="House No."
+							placeholder="Post Office"
 							required
 						/>
 					</div>
@@ -209,7 +221,7 @@ export default function StepOne({
 							value={formData.ps}
 							onChange={handleChange}
 							className="mt-1 block w-full rounded-md p-2 border border-gray-300  focus:border-indigo-500 focus:ring-indigo-500"
-							placeholder="Village"
+							placeholder="Police Station"
 							required
 						/>
 					</div>

@@ -6,22 +6,16 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Spin } from "antd";
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	Tooltip,
-	ResponsiveContainer,
-	CartesianGrid,
-} from "recharts";
+import { Check, CheckCheck, Trash } from "lucide-react";
 
 interface Agent {
 	_id: string;
 	profile_picture: string;
 	fullname: string;
+	phone: string;
 	email: string;
 	amount: number;
+	admin_verified: boolean;
 }
 
 export default function Events() {
@@ -179,7 +173,7 @@ function Pagination({
 					height={20}
 					className="disabled:opacity-10"
 				/>
-				<span className="hidden lg:flex">Previous</span>
+				<span className="hidden lg:flex">পূর্ববর্তী</span>
 			</button>
 			<div className="text-[#414651] flex items-center gap-1">
 				{renderPageNumbers()}
@@ -191,7 +185,7 @@ function Pagination({
 				className={`text-[#414651] cursor-pointer disabled:cursor-default hover:bg-slate-50 disabled:hover:bg-white px-3 py-2 border disabled:border-[#E9EAEB] border-[#D5D7DA] flex gap-2 items-center disabled:text-[#A4A7AE] h-fit font-semibold rounded-lg`}
 				disabled={page === totalPages}
 			>
-				<span className="hidden lg:flex">Next</span>
+				<span className="hidden lg:flex">পরবর্তী</span>
 				<Image
 					src="/assets/Icons/arrow-right.svg"
 					alt="right"
@@ -238,6 +232,29 @@ function RowCard({
 		}
 		setLoading(false);
 	}
+
+	async function handleVerify() {
+		setLoading(true);
+		const response = await fetch("/api/admin/funds/approve-admin", {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				agentId: agent._id,
+			}),
+		});
+		const data = await response.json();
+		if (response.ok) {
+			toast.success(data.message);
+			const temp = [...agents];
+			temp[index].admin_verified = true;
+            setAgents(temp);
+		} else {
+			toast.error(data.message);
+		}
+		setLoading(false);
+	}
 	return (
 		<div
 			className={`w-full flex p-[12px]  items-center border-b justify-between ${
@@ -257,25 +274,45 @@ function RowCard({
 				</div>
 			</div>
 			<div className="text-[#535862] hidden lg:flex w-full text-wrap text-[14px]">
-				<span className="">{agent.email}</span>
+				<span className="">{agent.phone}</span>
+			</div>
+			<div className="text-[#535862] hidden lg:flex w-full text-wrap text-[14px]">
+				<span className="">{agent.amount}</span>
 			</div>
 
 			{loading ? (
 				<Spin size="large" />
 			) : (
-				<button
-					onClick={handleDelete}
-					className=" hover:opacity-70 h-[20px] w-full justify-end flex items-center gap-1 font-semibold rounded-[8px]"
-					name="Delete"
-					title="Delete"
-				>
-					<Image
-						src="/assets/Icons/trash-01.svg"
-						alt="delete"
-						width={20}
-						height={20}
-					/>
-				</button>
+				<div className="flex w-full justify-end items-end flex-row gap-x-2">
+					<button
+						onClick={() => {
+							if (agent.admin_verified) return;
+							handleVerify();
+						}}
+						className=" justify-end flex items-center gap-1 font-semibold rounded-[8px]"
+						name="Verify"
+						title={
+							agent.admin_verified
+								? "ভেরিফাই করা হয়েছে"
+								: "ভেরিফাই করুন"
+						}
+						disabled={agent.admin_verified}
+					>
+						{agent.admin_verified ? (
+							<CheckCheck className="text-green-500" size={20} />
+						) : (
+							<Check className="hover:text-blue-300" size={20} />
+						)}
+					</button>
+					<button
+						onClick={handleDelete}
+						className=" justify-end flex items-center gap-1 font-semibold rounded-[8px]"
+						name="Delete"
+						title="মুছে ফেলুন"
+					>
+						<Trash className="hover:text-red-500" size={20} />
+					</button>
+				</div>
 			)}
 		</div>
 	);
@@ -286,10 +323,10 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Agents
+					এজেন্ট ম্যানেজমেন্ট
 				</div>
 				<div className=" text-[#535862] text-[16px]">
-					Manage All the Agents Investing With You.
+					আপনি এখানে সকল এজেন্টের তালিকা দেখতে পারবেন
 				</div>
 			</div>
 		</div>
@@ -340,7 +377,7 @@ function SearchBar({
 		<div className="flex flex-col">
 			<div className="w-full px-4 pb-2 border-b mt-2 flex md:flex-row flex-col justify-between items-center gap-[20px]">
 				<div className="w-full font-semibold text-[#181D27] text-[18px]">
-					Agents
+					এজেন্ট
 				</div>
 				<button
 					onClick={handleExcelDownload}
@@ -353,7 +390,7 @@ function SearchBar({
 						height={20}
 						className=""
 					/>
-					<span>Download</span>
+					<span>ডাউনলোড</span>
 				</button>
 			</div>
 			<div className="w-full justify-between lg:justify-end px-4 pb-2 border-b mt-2 flex md:flex-row flex-col  items-center gap-[20px]">
@@ -367,7 +404,7 @@ function SearchBar({
 					/>
 					<input
 						type="text"
-						placeholder="Search"
+						placeholder="অনুসন্ধান করুন"
 						name="search"
 						value={search_text}
 						onChange={(e) => setSearchText(e.target.value)}
@@ -385,9 +422,10 @@ function SearchBar({
 function SortingBar() {
 	return (
 		<div className="w-full flex text-[12px] p-[12px] items-center text-[#717680] bg-[#FAFAFA]  justify-between">
-			<div className="w-full font-semibold ">Agents</div>
-			<div className="w-full hidden lg:flex font-semibold ">Email</div>
-			<div className="w-full font-semibold text-end ">Action</div>
+			<div className="w-full font-semibold ">এজেন্ট</div>
+			<div className="w-full hidden lg:flex font-semibold ">ফোন</div>
+			<div className="w-full hidden lg:flex font-semibold ">পরিমাণ</div>
+			<div className="w-full font-semibold text-end ">প্রক্রিয়া</div>
 		</div>
 	);
 }

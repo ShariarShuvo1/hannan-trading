@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { Spin } from "antd";
-import { useUser } from "@clerk/nextjs";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { X } from "lucide-react";
+import "./styles.css";
 
 interface Bank {
 	_id: string;
@@ -25,8 +25,29 @@ interface Event {
 	banner: string;
 	roi: number;
 	minimum_deposit: number;
+	maximum_deposit: number;
 	duration: number;
 	start_date: Date;
+}
+
+interface Investor {
+	name: string;
+	nid: string;
+	nominee_name: string;
+	nominee_nid: string;
+	payment_method: string;
+	date: Date;
+	amount: number;
+	percentage: number;
+}
+
+interface Transaction {
+	event: Event;
+	agent_bank_info: Bank;
+	admin_bank_info: Bank;
+	amount: number;
+	picture: string;
+	investors: Investor[];
 }
 
 export default function Page() {
@@ -34,19 +55,44 @@ export default function Page() {
 	const { eventId } = useParams();
 	const [loading, setLoading] = useState(false);
 	const [banks, setBanks] = useState<Bank[]>([]);
+	const [adminBanks, setAdminBanks] = useState<Bank[]>([]);
 	const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
-	const { user } = useUser();
+	const [selectedAgentBank, setSelectedAgentBank] = useState<Bank | null>(
+		null
+	);
+	const [investors, setInvestors] = useState<Investor[]>([]);
 	const [event, setEvent] = useState<Event | null>(null);
+	const [currentlySelectedMode, setCurrentlySelectedMode] =
+		useState<string>("transaction");
 
 	useEffect(() => {
 		async function fetchEvent() {
 			try {
 				setLoading(true);
-				const id = user?.id;
 				const res = await fetch(`/api/agent/get-trans`);
 				const data = await res.json();
 				if (res.ok) {
 					setBanks(data);
+					setSelectedAgentBank(data[0]);
+				} else {
+					toast.error(data.message);
+				}
+			} catch (error) {
+				toast.error("Failed to fetch event");
+			}
+			setLoading(false);
+		}
+		fetchEvent();
+	}, [eventId]);
+
+	useEffect(() => {
+		async function fetchEvent() {
+			try {
+				setLoading(true);
+				const res = await fetch(`/api/agent/get-admin-bank`);
+				const data = await res.json();
+				if (res.ok) {
+					setAdminBanks(data);
 					setSelectedBank(data[0]);
 				} else {
 					toast.error(data.message);
@@ -78,25 +124,46 @@ export default function Page() {
 		<div className="py-[32px] bg-white h-full overflow-y-auto px-[24px] w-full flex flex-col gap-[24px]">
 			{loading && <Spin fullscreen size="large" />}
 			<Navigation router={router} event={event} />
-			<TopTitle router={router} />
+			{currentlySelectedMode === "transaction" && <TopTitle />}
+			{currentlySelectedMode === "investor" && <TopTitleTwo />}
+
 			<div className="flex flex-col gap-4 w-full lg:flex-row items-start justify-start lg:justify-between">
-				<div className="w-full flex flex-col gap-[12px]">
-					{banks.map((bank) => (
-						<BankCard
-							key={bank._id}
-							bank={bank}
-							selectedBank={selectedBank}
-							setSelectedBank={setSelectedBank}
-							event={event}
-						/>
-					))}
-				</div>
+				{currentlySelectedMode === "transaction" && (
+					<div className="w-full flex flex-col gap-[12px]">
+						{adminBanks.map((adminBank) => (
+							<BankCard
+								key={adminBank._id}
+								bank={adminBank}
+								selectedBank={selectedBank}
+								setSelectedBank={setSelectedBank}
+								event={event}
+							/>
+						))}
+					</div>
+				)}
+
+				{currentlySelectedMode === "investor" && (
+					<AddInvestor
+						setCurrentlySelectedMode={setCurrentlySelectedMode}
+						investors={investors}
+						setInvestors={setInvestors}
+					/>
+				)}
+
 				<div className="w-full lg:w-96">
 					<AddAmount
+						currentlySelectedMode={currentlySelectedMode}
+						setCurrentlySelectedMode={setCurrentlySelectedMode}
+						selectedAgentBank={selectedAgentBank}
+						setSelectedAgentBank={setSelectedAgentBank}
+						investors={investors}
+						setInvestors={setInvestors}
 						selectedBank={selectedBank}
+						setSelectedBank={setSelectedBank}
 						router={router}
 						eventId={eventId}
 						event={event}
+						banks={banks}
 					/>
 				</div>
 			</div>
@@ -104,16 +171,362 @@ export default function Page() {
 	);
 }
 
+function AddInvestor({
+	setCurrentlySelectedMode,
+	investors,
+	setInvestors,
+}: {
+	setCurrentlySelectedMode: (mode: string) => void;
+	investors: Investor[];
+	setInvestors: (investors: Investor[]) => void;
+}) {
+	const [name, setName] = useState<string>("");
+	const [nid, setNid] = useState<string>("");
+	const [nominee_name, setNomineeName] = useState<string>("");
+	const [nominee_nid, setNomineeNid] = useState<string>("");
+	const [payment_method, setPaymentMethod] = useState<string>("bank");
+	const [date, setDate] = useState<Date>(new Date());
+	const [amount, setAmount] = useState<string>("");
+	const [percentage, setPercentage] = useState<string>("");
+
+	function add_investor() {
+		if (
+			!name ||
+			!nid ||
+			!nominee_name ||
+			!nominee_nid ||
+			!payment_method ||
+			!date ||
+			!amount ||
+			!percentage
+		) {
+			toast.error("সব কয়টি বক্স পূরণ করুন");
+			return;
+		}
+		if (payment_method !== "bank" && payment_method !== "bkash") {
+			toast.error("ভুল পেমেন্ট মেথড");
+			return;
+		}
+		const newInvestor = {
+			name,
+			nid,
+			nominee_name,
+			nominee_nid,
+			payment_method,
+			date,
+			amount: parseInt(amount),
+			percentage: parseInt(percentage),
+		};
+		setInvestors([...investors, newInvestor]);
+		setName("");
+		setNid("");
+		setNomineeName("");
+		setNomineeNid("");
+		setPaymentMethod("bank");
+		setDate(new Date());
+		setAmount("");
+		setPercentage("");
+	}
+
+	return (
+		<div className="h-full flex-col space-y-[20px] overflow-y-auto w-full">
+			<div className="flex flex-col gap-[20px]">
+				<div className="flex flex-col gap-[6px]">
+					<div className="text-[#414651]">কো-ইনভেস্টরের নাম *</div>
+					<input
+						type="text"
+						className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+						placeholder="ইনভেস্টরের নাম দিন"
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+					/>
+				</div>
+
+				<div className="flex flex-col gap-[6px]">
+					<div className="text-[#414651]">
+						জাতীয় পরিচয় পত্র নং *
+					</div>
+					<input
+						type="text"
+						className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+						placeholder="জাতীয় পরিচয় পত্র নং দিন"
+						value={nid}
+						onChange={(e) => setNid(e.target.value)}
+					/>
+				</div>
+
+				<div className="flex flex-col gap-[6px]">
+					<div className="text-[#414651]">নমিনির নাম *</div>
+					<input
+						type="text"
+						className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+						placeholder="নমিনির নাম দিন"
+						value={nominee_name}
+						onChange={(e) => setNomineeName(e.target.value)}
+					/>
+				</div>
+
+				<div className="flex flex-col gap-[6px]">
+					<div className="text-[#414651]">
+						নমিনির জাতীয় পরিচয় পত্র নং *
+					</div>
+					<input
+						type="text"
+						className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+						placeholder="নমিনির জাতীয় পরিচয় পত্র নং দিন"
+						value={nominee_nid}
+						onChange={(e) => setNomineeNid(e.target.value)}
+					/>
+				</div>
+
+				<div className="flex flex-col items-center lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 w-full">
+					<div className="flex w-full flex-col gap-[6px]">
+						<div className="text-[#414651]">পেমেন্ট মেথড *</div>
+						<select
+							name="payment_method"
+							title="payment_method"
+							className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+							value={payment_method}
+							onChange={(e) => setPaymentMethod(e.target.value)}
+						>
+							<option value="bank">ব্যাংক</option>
+							<option value="bkash">বিকাশ</option>
+						</select>
+					</div>
+
+					<div className="flex w-full flex-col gap-[6px]">
+						<div className="text-[#414651]">জমার তারিখ *</div>
+						<input
+							type="date"
+							name="date"
+							title="date"
+							className="border border-[#D5D7DA] rounded-lg px-[14px] py-[8px]"
+							value={date.toISOString().split("T")[0]}
+							onChange={(e) => setDate(new Date(e.target.value))}
+						/>
+					</div>
+				</div>
+				<div className="flex flex-col items-center lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 w-full">
+					<div className="flex w-full flex-col gap-[6px]">
+						<div className="text-[#414651]">পরিমাণ *</div>
+						<input
+							type="number"
+							className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+							placeholder="পরিমাণ দিন"
+							value={amount}
+							onChange={(e) => setAmount(e.target.value)}
+						/>
+					</div>
+
+					<div className="flex w-full flex-col gap-[6px]">
+						<div className="text-[#414651]"> % পারছেন্টেজ *</div>
+						<input
+							type="number"
+							className="border border-[#D5D7DA] rounded-lg px-[14px] py-[10px]"
+							placeholder=" % পারছেন্টেজ দিন"
+							value={percentage}
+							onChange={(e) => setPercentage(e.target.value)}
+						/>
+					</div>
+				</div>
+
+				<div className="flex border-b justify-end gap-4 p-4">
+					<button
+						onClick={() => setCurrentlySelectedMode("transaction")}
+						className="hover:bg-slate-50 border text-black rounded-lg px-[14px] py-[6px] font-semibold"
+					>
+						Cancel
+					</button>
+					<button
+						onClick={add_investor}
+						className="bg-[#6941C6] hover:bg-[#5d39af] text-white rounded-lg px-[14px] py-[6px] font-semibold"
+					>
+						Add
+					</button>
+				</div>
+			</div>
+			<div className="flex w-full flex-col gap-[16px]">
+				<div className="w-full text-center border-b gap-4 hidden lg:grid lg:grid-cols-9">
+					{[
+						"নাম",
+						"জাতীয় পরিচয় পত্র নং",
+						"নমিনির নাম",
+						"নমিনির জাতীয় পরিচয় পত্র নং",
+						"পেমেন্ট মেথড",
+						"জমার তারিখ",
+						"পরিমাণ",
+						"% পারছেন্টেজ",
+						"ডিলিট",
+					].map((title, index) => (
+						<div
+							key={index}
+							className="text-[#717680] text-[12px] font-semibold"
+						>
+							{title}
+						</div>
+					))}
+				</div>
+				{investors.map((investor, index) => (
+					<div
+						key={index}
+						className="w-full pb-[16px] border-b text-[14px] flex flex-col gap-4"
+					>
+						<div className="lg:hidden flex flex-col gap-2">
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									নাম
+								</span>
+								<span className="text-[#181D27] font-semibold">
+									{investor.name}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									জাতীয় পরিচয় পত্র নং
+								</span>
+								<span className="text-[#717680] font-semibold">
+									{investor.nid}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									নমিনির নাম
+								</span>
+								<span className="text-[#181D27] font-semibold">
+									{investor.nominee_name}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									নমিনির জাতীয় পরিচয় পত্র নং
+								</span>
+								<span className="text-[#717680] font-semibold">
+									{investor.nominee_nid}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									পেমেন্ট মেথড
+								</span>
+								<span className="text-[#717680] font-semibold">
+									{investor.payment_method}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									জমার তারিখ
+								</span>
+								<span className="text-[#717680] font-semibold">
+									{new Date(
+										investor.date
+									).toLocaleDateString()}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									পরিমাণ
+								</span>
+								<span className="text-[#717680] font-semibold">
+									{investor.amount}
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									% পারছেন্টেজ
+								</span>
+								<span className="text-[#717680] font-semibold">
+									{investor.percentage}%
+								</span>
+							</div>
+							<div className="flex justify-between">
+								<span className="text-[#717680] font-semibold">
+									ডিলিট
+								</span>
+								<button
+									onClick={() => {
+										const newInvestors = investors.filter(
+											(inv) => inv !== investor
+										);
+										setInvestors(newInvestors);
+									}}
+									className="text-[#ff2020] hover:text-[#962d2d] font-semibold"
+									title="Delete"
+								>
+									Delete
+								</button>
+							</div>
+						</div>
+						<div className="hidden lg:text-center lg:grid lg:grid-cols-9 gap-4">
+							<div className="text-[#181D27] font-semibold">
+								{investor.name}
+							</div>
+							<div className="text-[#717680] font-semibold">
+								{investor.nid}
+							</div>
+							<div className="text-[#181D27] font-semibold">
+								{investor.nominee_name}
+							</div>
+							<div className="text-[#717680] font-semibold">
+								{investor.nominee_nid}
+							</div>
+							<div className="text-[#717680] font-semibold">
+								{investor.payment_method}
+							</div>
+							<div className="text-[#717680] font-semibold">
+								{new Date(investor.date).toLocaleDateString()}
+							</div>
+							<div className="text-[#717680] font-semibold">
+								{investor.amount}
+							</div>
+							<div className="text-[#717680] font-semibold">
+								{investor.percentage}%
+							</div>
+							<button
+								onClick={() => {
+									const newInvestors = investors.filter(
+										(inv) => inv !== investor
+									);
+									setInvestors(newInvestors);
+								}}
+								className="text-[#ff2020] hover:text-[#962d2d] font-semibold"
+								title="Delete"
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 function AddAmount({
+	currentlySelectedMode,
+	setCurrentlySelectedMode,
+	selectedAgentBank,
+	setSelectedAgentBank,
+	investors,
+	setInvestors,
 	selectedBank,
+	setSelectedBank,
 	router,
 	eventId,
 	event,
+	banks,
 }: {
+	currentlySelectedMode: string;
+	setCurrentlySelectedMode: (mode: string) => void;
+	selectedAgentBank: Bank | null;
+	setSelectedAgentBank: (bank: Bank | null) => void;
+	investors: Investor[];
+	setInvestors: (investors: Investor[]) => void;
 	selectedBank: Bank | null;
+	setSelectedBank: (bank: Bank | null) => void;
 	router: AppRouterInstance;
 	eventId: any;
 	event: Event | null;
+	banks: Bank[];
 }) {
 	const [profile_picture, setProfilePicture] = useState<File | undefined>(
 		undefined
@@ -193,7 +606,7 @@ function AddAmount({
 	async function handleSubmit(e: any) {
 		e.preventDefault();
 		if (!amount) {
-			toast.error("Amount is required");
+			toast.error("পরিমাণ দিন");
 			return;
 		}
 
@@ -201,18 +614,59 @@ function AddAmount({
 			event?.minimum_deposit !== undefined &&
 			parseInt(amount) < event.minimum_deposit
 		) {
-			toast.error("Minimum deposit is required");
+			toast.error(
+				"আপনি সর্বনিম্ন আমানতের চেয়ে কম পরিমাণ আমানত করতে পারবেন না"
+			);
+			return;
+		}
+
+		if (
+			event?.maximum_deposit !== undefined &&
+			parseInt(amount) > event.maximum_deposit
+		) {
+			toast.error(
+				"আপনি সর্বোচ্চ আমানতের চেয়ে বেশি পরিমাণ আমানত করতে পারবেন না"
+			);
 			return;
 		}
 
 		if (!profile_picture) {
-			toast.error("Image is required");
+			toast.error("ছবি আপলোড করুন");
 			return;
 		}
 		if (!selectedBank) {
-			toast.error("Bank is required");
+			toast.error("প্রাপকের একাউন্ট নির্বাচন করুন");
 			return;
 		}
+
+		if (!selectedAgentBank) {
+			toast.error("এজেন্টের একাউন্ট নির্বাচন করুন");
+			return;
+		}
+
+		if (investors.length === 0) {
+			toast.error("কমপক্ষে একজন ইনভেস্টর যোগ করুন");
+			return;
+		}
+
+		if (!profile_picture_url) {
+			toast.error("ছবি আপলোড করুন");
+			return;
+		}
+
+		if (!event) {
+			toast.error("ইভেন্ট নির্বাচন করুন");
+			return;
+		}
+
+		const body: Transaction = {
+			event: event,
+			agent_bank_info: selectedAgentBank,
+			admin_bank_info: selectedBank,
+			amount: parseInt(amount),
+			picture: profile_picture_url,
+			investors,
+		};
 
 		setLoading(true);
 		const response = await fetch("/api/agent/get-trans", {
@@ -220,24 +674,18 @@ function AddAmount({
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({
-				amount,
-				picture: profile_picture_url,
-				bank_account_number: selectedBank.bank_account_number,
-				routing_number: selectedBank.routing_number,
-				bank_account_holder_name: selectedBank.bank_account_holder_name,
-				bank_name: selectedBank.bank_name,
-				bank_district: selectedBank.bank_district,
-				bank_branch: selectedBank.bank_branch,
-				eventId,
-			}),
+			body: JSON.stringify({ trans: body }),
 		});
 		const data = await response.json();
 		if (response.ok) {
 			toast.success("Transaction successful");
 			setAmount("");
+			setSelectedAgentBank(banks[0]);
+			setSelectedBank(banks[0]);
 			setProfilePicture(undefined);
 			setProfilePictureUrl(undefined);
+			setInvestors([]);
+			router.back();
 		} else {
 			toast.error(data.message);
 		}
@@ -247,44 +695,62 @@ function AddAmount({
 	return (
 		<div className="h-full flex flex-col rounded-lg border">
 			<div className="flex p-[14px] border-b h-full flex-col gap-[18px]">
-				<>
-					<div className="text-[#414651] font-[500]">Amount *</div>
-					<div className="text-[#414651] border-2 h-full font-[500] flex items-center rounded-lg">
+				<div className=" h-fit ">
+					<div className="text-[#414651] font-[500]">পরিমাণ *</div>
+					<div className="text-[#414651] border-2 h-fit font-[500] flex items-center rounded-lg">
 						<div className="text-2xl px-[14px] py-[4px] h-full border-r-2 font-bold">
 							৳
 						</div>
-						<div className="h-full w-full">
+						<div className="h-fit w-full">
 							<input
 								type="number"
-								className="w-full h-full px-4 py-2 outline-none focus:ring-2 focus:ring-[#414651]"
-								placeholder="Enter amount"
+								className="w-full h-fit px-4 py-2 outline-none focus:ring-2 focus:ring-[#414651]"
+								placeholder="পরিমাণ দিন"
 								value={amount}
 								onChange={(e) => setAmount(e.target.value)}
 							/>
 						</div>
 					</div>
-				</>
-
-				<div className="border-2 border-[#6941C6] rounded-lg p-2 flex flex-col gap-1">
-					<div className="text-[#414651] font-[500]">
-						Account : {selectedBank?.bank_account_number}
+				</div>
+				<div className="flex gap-1 flex-col">
+					<div className="text-[#414651] font-[600]">
+						এজেন্টের একাউন্ট *
 					</div>
-					<div className="text-[#535862]">
-						Routing : {selectedBank?.routing_number}
-					</div>
-					<div className="text-[#414651] font-semibold">
-						{selectedBank?.bank_name}
+					<div className="max-h-64 border rounded-lg p-2 overflow-y-auto custom-scrollbar flex flex-col gap-2 select-none">
+						{banks.length > 0 &&
+							banks.map((bank) => (
+								<div
+									onClick={() => {
+										setSelectedAgentBank(bank);
+									}}
+									className={`border-2 cursor-pointer rounded-lg p-2 flex flex-col gap-1 ${
+										selectedAgentBank?._id === bank._id
+											? "border-[#6941C6]"
+											: "border-[#E9EAEB] hover:border-[#b29ae7]"
+									}`}
+									key={bank._id}
+								>
+									<div className="text-[#414651] font-[500]">
+										একাউন্টঃ {bank?.bank_account_number}
+									</div>
+									<div className="text-[#535862]">
+										রাউটিংঃ {bank?.routing_number}
+									</div>
+									<div className="text-[#414651] font-semibold">
+										{bank?.bank_name}
+									</div>
+								</div>
+							))}
 					</div>
 				</div>
+
 				<div
 					onClick={() =>
-						router.push(
-							`/dashboard/agent/events/${eventId}/transaction/add-bank`
-						)
+						router.push(`/dashboard/agent/home/add-bank`)
 					}
 					className="text-[#535862] cursor-pointer hover:text-[#6c7380] font-semibold"
 				>
-					+ Add new Bank Account
+					+ নতুন ব্যাংক যোগ করুন
 				</div>
 				<form className="space-y-4">
 					<>
@@ -367,6 +833,50 @@ function AddAmount({
 						</div>
 					)}
 				</form>
+				<div
+					onClick={() => {
+						if (currentlySelectedMode === "transaction") {
+							setCurrentlySelectedMode("investor");
+						} else {
+							setCurrentlySelectedMode("transaction");
+						}
+					}}
+					className={` flex gap-2 items-center justify-center h-fit rounded-lg py-[10px] px-[8px] text-center cursor-pointer font-semibold ${
+						currentlySelectedMode === "transaction"
+							? "bg-[#7F56D9] hover:bg-[#6746af] text-white"
+							: "bg-[#56a5d9] hover:bg-[#4889b4] text-black"
+					} `}
+				>
+					{currentlySelectedMode === "transaction" && (
+						<>
+							<Image
+								src="/assets/Icons/plus-circle.svg"
+								width={20}
+								height={20}
+								alt="Add"
+							/>
+							<div>কো-ইনভেস্টর যোগ করুন</div>
+						</>
+					)}
+					{currentlySelectedMode === "investor" && (
+						<>
+							<Image
+								src="/assets/Icons/wallet-02.svg"
+								width={20}
+								height={20}
+								alt="wallet"
+							/>
+							<div>একাউন্ট সিলেক্ট করুন</div>
+						</>
+					)}
+				</div>
+				<div>
+					ইনভেস্টর জোগ করেছেনঃ{" "}
+					<span className="font-bold text-[#6941C6]">
+						{investors.length}
+					</span>{" "}
+					জন
+				</div>
 			</div>
 			{loading ? (
 				<Spin size="large" />
@@ -409,7 +919,7 @@ function BankCard({
 			className={`w-full flex flex-col border-2 rounded-lg ${
 				selectedBank?._id === bank._id
 					? "border-[#6941C6]"
-					: "border-[#E0E0E0]"
+					: "border-[#E0E0E0] hover:border-[#b29ae7]"
 			}`}
 			onClick={() => {
 				setSelectedBank(bank);
@@ -435,10 +945,10 @@ function BankCard({
 				<div className="flex flex-col gap-[12px] w-full">
 					<div className="flex w-fit text-[#535862]">
 						<div className="w-full hidden lg:flex flex-col gap-[12px] me-8">
-							<div>Account Holder</div>
-							<div>Routing Number</div>
-							<div>Account Number</div>
-							<div>Branch Name</div>
+							<div>একাউন্ট হোল্ডার</div>
+							<div>রাউটিং নাম্বার</div>
+							<div>একাউন্ট নাম্বার</div>
+							<div>ব্রাঞ্চের নাম</div>
 						</div>
 						<div className=" max-w-[4px] hidden lg:flex flex-col gap-[12px] me-2">
 							<div>:</div>
@@ -458,9 +968,9 @@ function BankCard({
 							navigator.clipboard.writeText(
 								`${bank.bank_name}\nAccount Holder: ${bank.bank_account_holder_name}\nRouting Number: ${bank.routing_number}\nAccount Number: ${bank.bank_account_number}\nBranch Name: ${bank.bank_branch}`
 							);
-							toast.success("Copied to clipboard");
+							toast.success("কপি করা হয়েছে");
 						}}
-						className="text-[#6941C6] flex gap-1 cursor-pointer py-2 font-semibold hover:text-[#5a38aa]"
+						className="text-[#6941C6] flex gap-1 w-fit cursor-pointer py-2 font-semibold hover:text-[#5a38aa]"
 					>
 						<Image
 							src="/assets/Icons/copy-07.svg"
@@ -468,12 +978,12 @@ function BankCard({
 							height={20}
 							alt="Copy"
 						/>
-						<div>Copy Info</div>
+						<div>কপি করুন</div>
 					</div>
 				</div>
 				<div className="flex flex-col w-full lg:max-w-32">
 					<div className="text-[#717680] w-full text-[14px] font-semibold">
-						Min. Investment
+						সর্বনিম্ন বিনিয়োগ
 					</div>
 					<div className="text-[#414651] text-[30px] font-semibold">
 						৳{event?.minimum_deposit}
@@ -526,16 +1036,31 @@ function Navigation({
 	);
 }
 
-function TopTitle({ router }: { router: AppRouterInstance }) {
+function TopTitle() {
 	return (
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#181D27] text-[24px]">
-					Transaction
+					ট্রান্সাকশন করুন
 				</div>
 				<div className=" text-[#535862] text-[16px]">
-					You can choose any of the bank accounts below to send your
-					investment
+					আপনি নিচের ব্যাংক অ্যাকাউন্ট গুলিতে আপনার বিনিয়োগ পাঠাতে
+					পারেন
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function TopTitleTwo() {
+	return (
+		<div className="w-full border-b flex md:flex-row flex-col justify-between gap-[20px]">
+			<div className="pb-[20px]">
+				<div className="font-semibold text-[#181D27] text-[24px]">
+					কো-ইনভেস্টর যোগ করুন
+				</div>
+				<div className=" text-[#535862] text-[16px]">
+					আপনি আপনার কো-ইনভেস্টরদের তথ্য যোগ করতে পারেন
 				</div>
 			</div>
 		</div>

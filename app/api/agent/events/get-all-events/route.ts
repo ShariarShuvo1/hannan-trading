@@ -64,20 +64,27 @@ export const POST = async (req: Request) => {
 
 		if (search_text) {
 			query = {
-				$or: [
-					{ name: { $regex: search_text, $options: "i" } },
-					{ tagline: { $regex: search_text, $options: "i" } },
+				$and: [
+					{ is_active: true },
 					{
-						$expr: {
-							$regexMatch: {
-								input: { $toString: "$roi" },
-								regex: search_text,
-								options: "i",
+						$or: [
+							{ name: { $regex: search_text, $options: "i" } },
+							{ tagline: { $regex: search_text, $options: "i" } },
+							{
+								$expr: {
+									$regexMatch: {
+										input: { $toString: "$roi" },
+										regex: search_text,
+										options: "i",
+									},
+								},
 							},
-						},
+						],
 					},
 				],
 			};
+		} else {
+			query = { is_active: true };
 		}
 
 		if (roi_based_sorting === "desc") {
@@ -92,6 +99,7 @@ export const POST = async (req: Request) => {
 			.sort(sortCondition)
 			.skip((page - 1) * eventEachPage)
 			.limit(eventEachPage);
+
 		if (!events) {
 			return NextResponse.json(
 				{ message: "No events found" },

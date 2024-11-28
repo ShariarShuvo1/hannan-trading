@@ -13,6 +13,7 @@ export default function CreateEvent() {
 	const [bannerUrl, setBannerUrl] = useState<string | undefined>(undefined);
 	const [roi, setRoi] = useState("");
 	const [minimum_deposit, setMinimumDeposit] = useState("");
+	const [maximum_deposit, setMaximumDeposit] = useState("");
 	const [duration, setDuration] = useState("");
 	const [isDragging, setIsDragging] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,7 +84,14 @@ export default function CreateEvent() {
 	}
 
 	async function handleSubmit() {
-		if (!name || !tagline || !roi || !minimum_deposit || !duration) {
+		if (
+			!name ||
+			!tagline ||
+			!roi ||
+			!minimum_deposit ||
+			!maximum_deposit ||
+			!duration
+		) {
 			toast.error("Please fill all the fields");
 			return;
 		}
@@ -111,6 +119,7 @@ export default function CreateEvent() {
 				roi,
 				minimum_deposit,
 				duration,
+				maximum_deposit,
 			}),
 		});
 
@@ -124,6 +133,7 @@ export default function CreateEvent() {
 			setRoi("");
 			setMinimumDeposit("");
 			setDuration("");
+			setMaximumDeposit("");
 			router.push("/dashboard/admin/events");
 		} else {
 			toast.error(data.message);
@@ -153,24 +163,24 @@ export default function CreateEvent() {
 			<div className="w-full flex flex-col gap-[20px]">
 				<div className="border-b pb-[20px]">
 					<div className="font-semibold text-[#181D27] text-[18px]">
-						Create A New Event
+						নতুন ইভেন্ট তৈরি করুন
 					</div>
 					<div className="text-[#535862]">
-						Create another event for your agents!
+						আপনার এজেন্টদের জন্য আরেকটি ইভেন্ট তৈরি করুন!
 					</div>
 				</div>
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Event Name *
+							ইভেন্টের নাম *
 						</div>
 						<div className="text-[#535862]">
-							This will be displayed on event card.
+							ইভেন্ট কার্ডে দেখানো হবে।
 						</div>
 					</div>
 					<input
 						type="text"
-						placeholder="Enter event name"
+						placeholder="ইভেন্টের নাম লিখুন"
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						className="border-[1px] border-[#E0E0E0] rounded-lg px-[14px] py-[10px] max-w-[512px] w-full"
@@ -179,14 +189,14 @@ export default function CreateEvent() {
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Tagline *
+							ট্যাগলাইন *
 						</div>
 						<div className="text-[#535862]">
-							A quick description of the event
+							সংক্ষেপে ইভেন্ট বিবরণ
 						</div>
 					</div>
 					<textarea
-						placeholder="Enter event tagline"
+						placeholder="ট্যাগলাইন লিখুন"
 						value={tagline}
 						onChange={(e) => setTagline(e.target.value)}
 						className="border-[1px] border-[#E0E0E0] rounded-lg px-[14px] py-[10px] max-w-[512px] w-full"
@@ -196,10 +206,11 @@ export default function CreateEvent() {
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Event banner *
+							ইভেন্ট ব্যানার *
 						</div>
 						<div className="text-[#535862]">
-							Upload your event banner and attract more agents.
+							আরো এজেন্ট আকর্ষণ করতে আপনার ইভেন্ট ব্যানার আপলোড
+							করুন।
 						</div>
 					</div>
 					{banner ? (
@@ -260,7 +271,7 @@ export default function CreateEvent() {
 									or drag and drop
 								</p>
 								<p className="text-center">
-									SVG, PNG, JPG or GIF (max. 800&times;400px)
+									SVG, PNG, JPG or GIF
 								</p>
 							</div>
 						</div>
@@ -279,30 +290,30 @@ export default function CreateEvent() {
 				<div className="border-b pb-[20px] flex flex-col lg:flex-row gap-[32px]">
 					<div className="max-w-[280px] w-full">
 						<div className="font-semibold text-[#414651]">
-							Investment Factors
+							ইনভেস্টমেন্ট ফ্যাক্টর
 						</div>
 					</div>
 					<div className="flex flex-col max-w-[512px] w-full text-[16px] gap-[16px]">
 						<div className="flex items-center">
-							<div className="px-[12px] max-w-[120px] w-full rounded-l-lg border py-[10px] ">
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg border py-[10px] ">
 								ROI
 							</div>
 							<input
 								type="number"
 								step={0.01}
-								placeholder="Put your ROI"
+								placeholder="ROI লিখুন"
 								value={roi}
 								onChange={(e) => setRoi(e.target.value)}
 								className="border-y border-r border-[#E0E0E0] rounded-r-lg px-[12px] py-[10px] max-w-[512px] w-full"
 							/>
 						</div>
 						<div className="flex items-center">
-							<div className="px-[12px] max-w-[120px] w-full rounded-l-lg text-nowrap border py-[10px] ">
-								Min. Deposit
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg text-nowrap border py-[10px] ">
+								সর্বনিম্ন আমানত
 							</div>
 							<input
 								type="number"
-								placeholder="Minimum Deposit Amount"
+								placeholder="সর্বনিম্ন আমানত লিখুন"
 								value={minimum_deposit}
 								onChange={(e) =>
 									setMinimumDeposit(e.target.value)
@@ -311,12 +322,26 @@ export default function CreateEvent() {
 							/>
 						</div>
 						<div className="flex items-center">
-							<div className="px-[12px] max-w-[120px] w-full rounded-l-lg border py-[10px] ">
-								Duration
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg text-nowrap border py-[10px] ">
+								সর্বোচ্চ আমানত
 							</div>
 							<input
 								type="number"
-								placeholder="Duration in months"
+								placeholder="সর্বোচ্চ আমানত লিখুন"
+								value={maximum_deposit}
+								onChange={(e) =>
+									setMaximumDeposit(e.target.value)
+								}
+								className="border-y border-r border-[#E0E0E0] rounded-r-lg px-[12px] py-[10px] max-w-[512px] w-full"
+							/>
+						</div>
+						<div className="flex items-center">
+							<div className="px-[12px] max-w-[130px] w-full rounded-l-lg border py-[10px] ">
+								স্থায়িত্ব
+							</div>
+							<input
+								type="number"
+								placeholder="স্থায়িত্ব (মাসে)"
 								value={duration}
 								onChange={(e) => setDuration(e.target.value)}
 								className="border-y border-r border-[#E0E0E0] rounded-r-lg px-[12px] py-[10px] max-w-[512px] w-full"
@@ -325,7 +350,7 @@ export default function CreateEvent() {
 					</div>
 				</div>
 			</div>
-			<div className="w-full justify-end flex gap-4">
+			<div className="w-full justify-end flex gap-4 pb-4">
 				{loading ? (
 					<Spin />
 				) : (

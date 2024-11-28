@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import User from "@/models/User";
 import Transaction from "@/models/Transaction";
-import Investor from "@/models/Investor";
 import { currentUser, clerkClient } from "@clerk/nextjs/server";
 
 interface ReturnBody {
@@ -132,8 +131,6 @@ export const DELETE = async (req: Request) => {
 		await clerk.users.deleteUser(agent.clerkId);
 
 		await Transaction.deleteMany({ user: agent._id });
-
-		await Investor.deleteMany({ agent: agent._id });
 
 		await User.findByIdAndDelete(agent._id);
 

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import Event from "@/models/Event";
-import Transaction from "@/models/Transaction";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: Request) => {
@@ -26,8 +25,15 @@ export const POST = async (req: Request) => {
 			);
 		}
 
-		const { name, tagline, banner, roi, minimum_deposit, duration } =
-			await req.json();
+		const {
+			name,
+			tagline,
+			banner,
+			roi,
+			minimum_deposit,
+			maximum_deposit,
+			duration,
+		} = await req.json();
 
 		if (
 			!name ||
@@ -35,10 +41,21 @@ export const POST = async (req: Request) => {
 			!banner ||
 			!roi ||
 			!minimum_deposit ||
+			!maximum_deposit ||
 			!duration
 		) {
 			return NextResponse.json(
 				{ message: "Please fill all fields" },
+				{ status: 400 }
+			);
+		}
+
+		if (minimum_deposit > maximum_deposit) {
+			return NextResponse.json(
+				{
+					message:
+						"Minimum deposit cannot be greater than maximum deposit",
+				},
 				{ status: 400 }
 			);
 		}
@@ -50,6 +67,7 @@ export const POST = async (req: Request) => {
 			roi,
 			minimum_deposit,
 			duration,
+			maximum_deposit,
 		});
 
 		await newEvent.save();
@@ -143,6 +161,7 @@ export const PUT = async (req: Request) => {
 			banner,
 			roi,
 			minimum_deposit,
+			maximum_deposit,
 			duration,
 			eventId,
 		} = await req.json();
@@ -153,6 +172,7 @@ export const PUT = async (req: Request) => {
 			!banner ||
 			!roi ||
 			!minimum_deposit ||
+			!maximum_deposit ||
 			!duration ||
 			!eventId
 		) {
@@ -176,6 +196,7 @@ export const PUT = async (req: Request) => {
 		event.banner = banner;
 		event.roi = roi;
 		event.minimum_deposit = minimum_deposit;
+		event.maximum_deposit = maximum_deposit;
 		event.duration = duration;
 
 		await event.save();
@@ -231,12 +252,10 @@ export const DELETE = async (req: Request) => {
 			);
 		}
 
-		await Transaction.deleteMany({ event: eventId });
-
-		await Event.findByIdAndDelete(eventId);
+		await Event.findByIdAndUpdate(eventId, { is_active: !event.is_active });
 
 		return NextResponse.json(
-			{ message: "Event deleted successfully" },
+			{ message: "Event Privecy Changed Successfully" },
 			{ status: 200 }
 		);
 	} catch (err) {

@@ -1,11 +1,11 @@
 "use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import { Spin } from "antd";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
-export default function Dashboard() {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 	const router = useRouter();
 	const [isVerified, setIsVerified] = useState<boolean | null>(null);
 	const { user, isLoaded, isSignedIn } = useUser();
@@ -46,15 +46,9 @@ export default function Dashboard() {
 		checkAdminAccess();
 	}, [router, isLoaded, isSignedIn, user]);
 
-	useEffect(() => {
-		if (isLoaded && user && isSignedIn && isVerified) {
-			const role = user.publicMetadata.role as string[];
-			if (role.includes("admin")) {
-				router.push("/dashboard/admin/home");
-			} else if (role.includes("user")) {
-				router.push("/dashboard/agent/home");
-			}
-		}
-	}, [isLoaded, user, isSignedIn, isVerified]);
-	if (!isLoaded) return <Spin fullscreen size="large" />;
-}
+	if (isVerified === null) return <Spin size="large" fullscreen={true} />;
+
+	return <>{children}</>;
+};
+
+export default ProtectedRoute;

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Spin } from "antd";
+import { Pause, Play } from "lucide-react";
 
 interface Event {
 	_id: string;
@@ -13,8 +14,10 @@ interface Event {
 	banner: string;
 	roi: number;
 	minimum_deposit: number;
+	maximum_deposit: number;
 	duration: number;
 	start_date: Date;
+	is_active: boolean;
 }
 
 export default function Events() {
@@ -174,7 +177,7 @@ function Pagination({
 					height={20}
 					className="disabled:opacity-10"
 				/>
-				<span className="hidden lg:flex">Previous</span>
+				<span className="hidden lg:flex">পূর্ববর্তী</span>
 			</button>
 			<div className="text-[#414651] flex items-center gap-1">
 				{renderPageNumbers()}
@@ -186,7 +189,7 @@ function Pagination({
 				className={`text-[#414651] cursor-pointer disabled:cursor-default hover:bg-slate-50 disabled:hover:bg-white px-3 py-2 border disabled:border-[#E9EAEB] border-[#D5D7DA] flex gap-2 items-center disabled:text-[#A4A7AE] h-fit font-semibold rounded-lg`}
 				disabled={page === totalPages}
 			>
-				<span className="hidden lg:flex">Next</span>
+				<span className="hidden lg:flex">পরবর্তী</span>
 				<Image
 					src="/assets/Icons/arrow-right.svg"
 					alt="right"
@@ -213,7 +216,7 @@ function RowCard({
 	setEvents: (events: Event[]) => void;
 }) {
 	const [loading, setLoading] = useState(false);
-	async function handleDelete() {
+	async function toggleActive() {
 		setLoading(true);
 		const response = await fetch("/api/admin/events/create-event", {
 			method: "DELETE",
@@ -228,7 +231,7 @@ function RowCard({
 		if (response.ok) {
 			toast.success(data.message);
 			const temp = [...events];
-			temp.splice(index, 1);
+			temp[index].is_active = !temp[index].is_active;
 			setEvents(temp);
 		} else {
 			toast.error(data.message);
@@ -256,12 +259,20 @@ function RowCard({
 			<div className="md:flex hidden w-full items-center gap-[4px]">
 				<Badge text={event.roi.toString() + "% ROI"} />
 				<Badge
-					text={`Min. Amount: ৳` + event.minimum_deposit.toString()}
+					text={
+						`সর্বনিম্ন আমানত: ৳` + event.minimum_deposit.toString()
+					}
 					color="#2E90FA"
 				/>
 				<Badge
-					text={"Duration: " + event.duration.toString() + " Months"}
+					text={"স্থায়িত্ব: " + event.duration.toString() + " মাস"}
 					color="#17B26A"
+				/>
+				<Badge
+					text={
+						`সর্বোচ্চ আমানত: ৳` + event.maximum_deposit.toString()
+					}
+					color="#A817B2"
 				/>
 			</div>
 
@@ -291,17 +302,20 @@ function RowCard({
 						<Spin size="large" />
 					) : (
 						<button
-							onClick={handleDelete}
-							className=" hover:opacity-70 h-[20px] w-full justify-end flex items-center gap-1 font-semibold rounded-[8px]"
-							name="Delete"
-							title="Delete"
+							onClick={toggleActive}
+							className=" hover:text-[#898c92] text-[#A4A7AE] hover:border-[#898c92] border-[#A4A7AE] border-2 rounded-full p-1 w-full justify-end flex items-center gap-1 font-semibold"
+							name="change status"
+							title={
+								event.is_active
+									? " ইভেন্ট বন্ধ করুন"
+									: "ইভেন্ট চালু করুন"
+							}
 						>
-							<Image
-								src="/assets/Icons/trash-01.svg"
-								alt="delete"
-								width={20}
-								height={20}
-							/>
+							{event.is_active ? (
+								<Pause size={20} />
+							) : (
+								<Play size={20} />
+							)}
 						</button>
 					)}
 				</div>
@@ -330,9 +344,11 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Events
+					ইভেন্ট প্যানেল
 				</div>
-				<div className="text-[#535862]">Manage All of Your Events.</div>
+				<div className="text-[#535862]">
+					এখানে আপনি সকল ইভেন্ট দেখতে পাবেন
+				</div>
 			</div>
 			<button
 				onClick={() =>
@@ -340,7 +356,7 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 				}
 				className="bg-[#7F56D9] text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
 			>
-				+ Create Event
+				+ নতুন ইভেন্ট তৈরি করুন
 			</button>
 		</div>
 	);
@@ -358,7 +374,7 @@ function SearchBar({
 	return (
 		<div className="w-full flex md:flex-row flex-col h-fit justify-between gap-[20px]">
 			<div className="w-full font-semibold text-[#181D27] text-[18px]">
-				All Events
+				ইভেন্টের তালিকা
 			</div>
 			<div className="relative ">
 				<Image
@@ -370,7 +386,7 @@ function SearchBar({
 				/>
 				<input
 					type="text"
-					placeholder="Search"
+					placeholder="অনুসন্ধান করুন"
 					name="search"
 					value={search_text}
 					onChange={(e) => setSearchText(e.target.value)}
@@ -398,7 +414,7 @@ function SortingBar({
 	return (
 		<div className="w-full flex rounded-[12px] p-[12px] items-center bg-[#FAFAFA]  justify-between">
 			<div className="w-full text-[12px] font-semibold text-[#6941C6]">
-				Event Name
+				ইভেন্টের নাম
 			</div>
 			<div
 				className={`w-full hidden text-[12px] items-center font-semibold md:flex gap-[4px] ${
@@ -410,7 +426,7 @@ function SortingBar({
 					roi_based_sorting === "asc" ? "descending" : "ascending"
 				}`}
 			>
-				<div>Investment Factors</div>
+				<div>ইনভেস্টমেন্ট ফ্যাক্টর</div>
 				<Image
 					src="/assets/Icons/chevron-selector-vertical.svg"
 					alt="search"
@@ -426,7 +442,7 @@ function SortingBar({
 				/>
 			</div>
 			<div
-				className={`w-full hidden text-[12px] items-center font-semibold md:flex gap-[4px] ${
+				className={`w-full text-[12px] items-center font-semibold flex gap-[4px] ${
 					date_based_sorting === "asc"
 						? "text-[#6941C6]"
 						: "text-[#717680]"
@@ -435,7 +451,7 @@ function SortingBar({
 					date_based_sorting === "asc" ? "descending" : "ascending"
 				}`}
 			>
-				<div>Date added</div>
+				<div>তারিখ</div>
 				<Image
 					src="/assets/Icons/chevron-selector-vertical.svg"
 					alt="search"

@@ -101,7 +101,7 @@ export default function Master() {
 							<hr className="mb-[32px]" />
 							<div className="flex flex-col md:flex-row gap-2">
 								<div className="font-semibold text-[20px] text-[#181D27] leading-[24px]">
-									1032855478
+									103*******
 								</div>
 								<div className="flex w-fit  gap-2 py-[2px] px-[10px] bg-[#ECFDF3] rounded-full text-[#067647] items-center border border-[#ABEFC6]">
 									<div className="min-h-[8px] max-h-[8px] min-w-[8px] max-w-[8px] bg-[#17B26A] rounded-full"></div>

@@ -13,8 +13,10 @@ interface Event {
 	banner: string;
 	roi: number;
 	minimum_deposit: number;
+	maximum_deposit: number;
 	duration: number;
 	start_date: Date;
+	is_active: boolean;
 }
 
 export default function Events() {
@@ -47,6 +49,7 @@ export default function Events() {
 		const data = await response.json();
 		if (response.ok) {
 			setEvents(data.events);
+			console.log(data.events);
 			setTotalPages(data.totalPages);
 		} else {
 			toast.error(data.message);
@@ -85,10 +88,10 @@ export default function Events() {
 			<TopTitle router={router} />
 
 			<div className="w-full border-b pb-[20px] font-semibold text-[#181D27] text-[18px]">
-				Just Started
+				সাম্প্রতিক ইভেন্ট
 			</div>
 
-			<div className="w-full flex flex-col lg:flex-row">
+			<div className="w-full flex flex-col lg:flex-row border-b pb-8">
 				{topThreeLoading && (
 					<div className="w-full flex justify-center items-center">
 						<Spin size="large" />
@@ -214,7 +217,7 @@ function Pagination({
 					height={20}
 					className="disabled:opacity-10"
 				/>
-				<span className="hidden lg:flex">Previous</span>
+				<span className="hidden lg:flex">পূর্ববর্তী</span>
 			</button>
 			<div className="text-[#414651] flex items-center gap-1">
 				{renderPageNumbers()}
@@ -226,7 +229,7 @@ function Pagination({
 				className={`text-[#414651] cursor-pointer disabled:cursor-default hover:bg-slate-50 disabled:hover:bg-white px-3 py-2 border disabled:border-[#E9EAEB] border-[#D5D7DA] flex gap-2 items-center disabled:text-[#A4A7AE] h-fit font-semibold rounded-lg`}
 				disabled={page === totalPages}
 			>
-				<span className="hidden lg:flex">Next</span>
+				<span className="hidden lg:flex">পরবর্তী</span>
 				<Image
 					src="/assets/Icons/arrow-right.svg"
 					alt="right"
@@ -249,7 +252,9 @@ function BigCard({
 	router: AppRouterInstance;
 }) {
 	return (
-		<div className={`w-full  flex flex-col p-[12px]  justify-start `}>
+		<div
+			className={`w-full lg:w-1/3  flex flex-col p-[12px]  justify-start `}
+		>
 			<div className="flex flex-col w-full mb-[8px] items-start gap-[20px]">
 				<img
 					src={event.banner}
@@ -286,12 +291,22 @@ function BigCard({
 			<div className="flex flex-wrap w-full items-center gap-[4px]">
 				<Badge text={event.roi.toString() + "% ROI"} />
 				<Badge
-					text={`Min. Amount: ৳` + event.minimum_deposit.toString()}
+					text={
+						`সর্বনিম্ন আমানত: ৳` + event.minimum_deposit.toString()
+					}
 					color="#2E90FA"
 				/>
 				<Badge
-					text={"Duration: " + event.duration.toString() + " Months"}
+					text={
+						"স্থায়িত্ব: " + event.duration.toString() + " Months"
+					}
 					color="#17B26A"
+				/>
+				<Badge
+					text={
+						`সর্বোচ্চ আমানত: ৳` + event.maximum_deposit.toString()
+					}
+					color="#A817B2"
 				/>
 			</div>
 		</div>
@@ -333,12 +348,22 @@ function RowCard({
 			<div className="md:flex md:flex-wrap hidden w-full items-center gap-[4px]">
 				<Badge text={event.roi.toString() + "% ROI"} />
 				<Badge
-					text={`Min. Amount: ৳` + event.minimum_deposit.toString()}
+					text={
+						`সর্বনিম্ন আমানত: ৳` + event.minimum_deposit.toString()
+					}
 					color="#2E90FA"
 				/>
 				<Badge
-					text={"Duration: " + event.duration.toString() + " Months"}
+					text={
+						"স্থায়িত্ব: " + event.duration.toString() + " Months"
+					}
 					color="#17B26A"
+				/>
+				<Badge
+					text={
+						`সর্বোচ্চ আমানত: ৳` + event.maximum_deposit.toString()
+					}
+					color="#A817B2"
 				/>
 			</div>
 
@@ -375,7 +400,7 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 		<div className="w-full flex md:flex-row flex-col justify-between gap-[20px]">
 			<div className="pb-[20px]">
 				<div className="font-semibold text-[#535862] text-[24px]">
-					Events
+					ইভেন্ট
 				</div>
 			</div>
 			<div className="flex gap-[12px] flex-col md:flex-row">
@@ -383,7 +408,7 @@ function TopTitle({ router }: { router: AppRouterInstance }) {
 					onClick={() => router.push("/dashboard/agent/home")}
 					className="bg-[#7F56D9] hover:bg-[#764fc9] text-white h-fit font-semibold py-[10px] px-[14px] rounded-[8px]"
 				>
-					<div>My Invested Events</div>
+					<div>আমার বিনিয়োগ</div>
 				</button>
 			</div>
 		</div>
@@ -402,7 +427,7 @@ function SearchBar({
 	return (
 		<div className="w-full flex md:flex-row flex-col h-fit justify-between gap-[20px]">
 			<div className="w-full font-semibold text-[#181D27] text-[18px]">
-				All Events
+				ইভেন্টের তালিকা
 			</div>
 			<div className="relative ">
 				<Image
@@ -414,7 +439,7 @@ function SearchBar({
 				/>
 				<input
 					type="text"
-					placeholder="Search"
+					placeholder="অনুসন্ধান করুন"
 					name="search"
 					value={search_text}
 					onChange={(e) => setSearchText(e.target.value)}
@@ -442,7 +467,7 @@ function SortingBar({
 	return (
 		<div className="w-full flex rounded-[12px] p-[12px] items-center bg-[#FAFAFA]  justify-between">
 			<div className="w-full text-[12px] font-semibold text-[#6941C6]">
-				Event Name
+				ইভেন্ট নাম
 			</div>
 			<div
 				className={`w-full hidden text-[12px] items-center font-semibold md:flex gap-[4px] ${
@@ -454,7 +479,7 @@ function SortingBar({
 					roi_based_sorting === "asc" ? "descending" : "ascending"
 				}`}
 			>
-				<div>Investment Factors</div>
+				<div>ইনভেস্টমেন্ট ফ্যাক্টর</div>
 				<Image
 					src="/assets/Icons/chevron-selector-vertical.svg"
 					alt="search"
@@ -479,7 +504,7 @@ function SortingBar({
 					date_based_sorting === "asc" ? "descending" : "ascending"
 				}`}
 			>
-				<div>Date added</div>
+				<div>তারিখ</div>
 				<Image
 					src="/assets/Icons/chevron-selector-vertical.svg"
 					alt="search"

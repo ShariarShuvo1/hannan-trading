@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongoDB";
 import User from "@/models/User";
-import Investor from "@/models/Investor";
+import Transaction from "@/models/Transaction";
 import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: Request) => {
@@ -24,42 +24,53 @@ export const POST = async (req: Request) => {
 			);
 		}
 
-		const dbUser = await User.findOne({ clerkId: user.id });
-		if (!dbUser) {
+		const newUser = await User.findOne({ clerkId: user.id });
+		if (!newUser) {
 			return NextResponse.json(
 				{ message: "User not found" },
 				{ status: 404 }
 			);
 		}
 
-		const { page, search_text } = await req.json();
-		const limit = 10;
-		const skip = (page - 1) * limit;
+		const { page = 1, itemsPerPage = 10, search_text } = await req.json();
 
-		let query: any = {};
+		const query: any = { is_approved: true };
 		if (search_text) {
-			query = {
-				...query,
-				$or: [
-					{ name: { $regex: search_text, $options: "i" } },
-					{ address: { $regex: search_text, $options: "i" } },
-					{ phone: { $regex: search_text, $options: "i" } },
-				],
-			};
+			const searchRegex = new RegExp(search_text, "i");
+			query.$or = [
+				{ "investors.name": searchRegex },
+				{ "investors.nid": searchRegex },
+				{ "investors.nominee_name": searchRegex },
+				{ "investors.nominee_nid": searchRegex },
+				{ "investors.payment_method": searchRegex },
+			];
 		}
 
-		const investors = await Investor.find(query)
-			.skip(skip)
-			.limit(limit)
-			.lean();
+		const transactions = await Transaction.find(query).select("investors");
 
-		const totalInvestors = await Investor.countDocuments(query);
-		const totalPages = Math.ceil(totalInvestors / limit);
-
-		return NextResponse.json({
-			investors,
-			totalPages,
+		const allInvestors = transactions.flatMap(
+			(transaction) => transaction.investors || []
+		);
+		const filteredInvestors = allInvestors.filter((investor) => {
+			if (!search_text) return true;
+			const searchRegex = new RegExp(search_text, "i");
+			return (
+				searchRegex.test(investor.$name) ||
+				searchRegex.test(investor.nid) ||
+				searchRegex.test(investor.nominee_name) ||
+				searchRegex.test(investor.nominee_nid) ||
+				searchRegex.test(investor.payment_method)
+			);
 		});
+
+		const totalInvestors = filteredInvestors.length;
+		const totalPages = Math.ceil(totalInvestors / itemsPerPage);
+		const paginatedInvestors = filteredInvestors.slice(
+			(page - 1) * itemsPerPage,
+			page * itemsPerPage
+		);
+
+		return NextResponse.json({ investors: paginatedInvestors, totalPages });
 	} catch (err) {
 		return NextResponse.json(
 			{ message: "Internal server error" },
